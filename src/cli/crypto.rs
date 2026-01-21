@@ -32,8 +32,8 @@ pub async fn run(args: CryptoArgs) -> Result<()> {
                 .ok_or_else(|| anyhow::anyhow!("Output directory required"))?;
 
             encrypt::decrypt_file(
-                &std::path::Path::new(&input),
-                &std::path::Path::new(&output),
+                std::path::Path::new(&input),
+                std::path::Path::new(&output),
                 &args.password,
             )?;
 

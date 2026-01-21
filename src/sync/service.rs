@@ -1,6 +1,5 @@
 use crate::models::backup_file::BackupFile;
 use crate::models::config::Config;
-use crate::models::config::RemoteConfig;
 use crate::sync::rclone;
 use anyhow::Result;
 use tracing::{error, info};
@@ -17,21 +16,21 @@ impl SyncService {
     pub async fn sync_backups(&self, backup_files: &[BackupFile], dry_run: bool) -> Result<()> {
         if let Some(dropbox) = &self.config.remote.dropbox {
             if dropbox.enabled {
-                self.sync_to_provider(&backup_files, "dropbox:", dry_run)
+                self.sync_to_provider(backup_files, "dropbox:", dry_run)
                     .await?;
             }
         }
 
         if let Some(onedrive) = &self.config.remote.onedrive {
             if onedrive.enabled {
-                self.sync_to_provider(&backup_files, "onedrive:", dry_run)
+                self.sync_to_provider(backup_files, "onedrive:", dry_run)
                     .await?;
             }
         }
 
         if let Some(icloud) = &self.config.remote.icloud {
             if icloud.enabled {
-                self.sync_to_provider(&backup_files, "icloud:", dry_run)
+                self.sync_to_provider(backup_files, "icloud:", dry_run)
                     .await?;
             }
         }
@@ -42,7 +41,7 @@ impl SyncService {
                     "sftp:{}@{}:{}/backup",
                     sftp.username, sftp.ipaddr, sftp.port
                 );
-                self.sync_to_provider(&backup_files, &remote_path, dry_run)
+                self.sync_to_provider(backup_files, &remote_path, dry_run)
                     .await?;
             }
         }

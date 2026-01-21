@@ -1,4 +1,4 @@
-use crate::models::config::{Config, Frequency};
+use crate::models::config::Config;
 use anyhow::{anyhow, Result};
 use std::path::Path;
 
@@ -26,54 +26,43 @@ pub fn validate_config(config: &Config) -> Result<()> {
     }
 
     // Validate sources
-    if config.source.firefox.enabled {
-        if !config.source.firefox.dir.exists() {
-            return Err(anyhow!(
-                "Firefox directory does not exist: {:?}",
-                config.source.firefox.dir
-            ));
-        }
+    if config.source.firefox.enabled && !config.source.firefox.dir.exists() {
+        return Err(anyhow!(
+            "Firefox directory does not exist: {:?}",
+            config.source.firefox.dir
+        ));
     }
 
-    if config.source.folder.enabled {
-        if !config.source.folder.dir.exists() {
-            return Err(anyhow!(
-                "Folder directory does not exist: {:?}",
-                config.source.folder.dir
-            ));
-        }
+    if config.source.folder.enabled && !config.source.folder.dir.exists() {
+        return Err(anyhow!(
+            "Folder directory does not exist: {:?}",
+            config.source.folder.dir
+        ));
     }
 
     // Validate remotes if enabled
     if let Some(dropbox) = &config.remote.dropbox {
-        if dropbox.enabled {
-            if dropbox.app_key.is_empty() || dropbox.app_secret.is_empty() {
-                return Err(anyhow!("Dropbox app_key and app_secret are required"));
-            }
+        if dropbox.enabled && (dropbox.app_key.is_empty() || dropbox.app_secret.is_empty()) {
+            return Err(anyhow!("Dropbox app_key and app_secret are required"));
         }
     }
 
     if let Some(onedrive) = &config.remote.onedrive {
-        if onedrive.enabled {
-            if onedrive.client_id.is_empty() || onedrive.client_secret.is_empty() {
-                return Err(anyhow!("OneDrive client_id and client_secret are required"));
-            }
+        if onedrive.enabled && (onedrive.client_id.is_empty() || onedrive.client_secret.is_empty())
+        {
+            return Err(anyhow!("OneDrive client_id and client_secret are required"));
         }
     }
 
     if let Some(icloud) = &config.remote.icloud {
-        if icloud.enabled {
-            if icloud.apple_id.is_empty() || icloud.client_id.is_empty() {
-                return Err(anyhow!("iCloud apple_id and client_id are required"));
-            }
+        if icloud.enabled && (icloud.apple_id.is_empty() || icloud.client_id.is_empty()) {
+            return Err(anyhow!("iCloud apple_id and client_id are required"));
         }
     }
 
     if let Some(sftp) = &config.remote.sftp {
-        if sftp.enabled {
-            if sftp.username.is_empty() || sftp.ipaddr.is_empty() {
-                return Err(anyhow!("SFTP username and ipaddr are required"));
-            }
+        if sftp.enabled && (sftp.username.is_empty() || sftp.ipaddr.is_empty()) {
+            return Err(anyhow!("SFTP username and ipaddr are required"));
         }
     }
 

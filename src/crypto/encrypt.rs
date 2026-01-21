@@ -1,5 +1,5 @@
 use aead::{Aead, Payload};
-use aes_gcm::{Aes256Gcm, Key, KeyInit, Nonce};
+use aes_gcm::{Aes256Gcm, KeyInit, Nonce};
 use anyhow::Result;
 use pbkdf2::pbkdf2;
 use rand::RngCore;
@@ -8,7 +8,8 @@ use std::path::Path;
 
 pub fn derive_key(password: &str, salt: &[u8]) -> [u8; 32] {
     let mut key = [0u8; 32];
-    pbkdf2::<hmac::Hmac<sha2::Sha256>>(password.as_bytes(), salt, 10000, &mut key);
+    pbkdf2::<hmac::Hmac<sha2::Sha256>>(password.as_bytes(), salt, 10000, &mut key)
+        .expect("PBKDF2 key derivation should not fail");
     key
 }
 

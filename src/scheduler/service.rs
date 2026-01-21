@@ -1,4 +1,4 @@
-use crate::models::config::{Config, Frequency};
+use crate::models::config::Frequency;
 use chrono::{DateTime, Duration, Utc};
 
 pub struct SchedulerService;

@@ -58,7 +58,7 @@ impl BackupService {
 
     async fn create_backup_file(
         &self,
-        temp_dir: &PathBuf,
+        temp_dir: &std::path::Path,
         source_type: SourceType,
         password: &str,
     ) -> anyhow::Result<BackupFile> {

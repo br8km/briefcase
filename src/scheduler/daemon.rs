@@ -1,6 +1,5 @@
 use crate::backup::service::BackupService;
 use crate::models::config::Config;
-use crate::models::config::Frequency;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -37,7 +36,7 @@ impl Daemon {
 
     async fn check_and_run_backups(&self) {
         let config: Config = self.config.lock().await.clone();
-        let now = chrono::Utc::now();
+        let _now = chrono::Utc::now();
 
         // Firefox backup
         if config.source.firefox.enabled {
@@ -60,7 +59,7 @@ impl Daemon {
         // Would need to get password securely, perhaps from keyring
         let password = "dummy_password"; // TODO: Secure password retrieval
 
-        let backup_files = self.backup_service.perform_backup(password).await?;
+        let _backup_files = self.backup_service.perform_backup(password).await?;
 
         // Sync if enabled
         // TODO: Integrate sync

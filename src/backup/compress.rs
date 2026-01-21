@@ -5,7 +5,7 @@ use std::path::Path;
 pub fn compress_directory(
     input_dir: &Path,
     output_file: &Path,
-    password: Option<&str>,
+    _password: Option<&str>,
 ) -> Result<()> {
     let mut sz = SevenZWriter::create(output_file)?;
 

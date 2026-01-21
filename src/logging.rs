@@ -1,4 +1,3 @@
-use chrono::Utc;
 use std::path::PathBuf;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
