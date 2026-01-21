@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Sync Command",
+  "description": "Schema for the sync CLI command arguments",
+  "type": "object",
+  "properties": {
+    "dry-run": {
+      "type": "boolean",
+      "description": "Perform dry run without actual sync",
+      "default": false
+    },
+    "providers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["dropbox", "onedrive", "icloud", "sftp"]
+      },
+      "description": "Specific providers to sync to, defaults to all enabled",
+      "default": []
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Specific files to sync, defaults to all recent backups",
+      "default": []
+    }
+  },
+  "required": []
+}

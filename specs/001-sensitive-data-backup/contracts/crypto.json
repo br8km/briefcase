@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Crypto Command",
+  "description": "Schema for the crypto CLI command arguments",
+  "type": "object",
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": ["validate", "decrypt"],
+      "description": "Crypto operation to perform"
+    },
+    "password": {
+      "type": "string",
+      "description": "User password for validation/decryption",
+      "minLength": 1
+    },
+    "input": {
+      "type": "string",
+      "description": "Input file path for decryption"
+    },
+    "output": {
+      "type": "string",
+      "description": "Output directory path for decrypted files"
+    }
+  },
+  "required": ["action", "password"],
+  "if": {
+    "properties": { "action": { "const": "decrypt" } }
+  },
+  "then": {
+    "required": ["input", "output"]
+  }
+}
