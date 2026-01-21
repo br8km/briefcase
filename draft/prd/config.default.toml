@@ -1,0 +1,93 @@
+# Defualt config file
+[general]
+
+# required
+PasswordHint = "What is your favorite color?"
+# required
+PasswordKey = ""
+# required
+MaxRetention = 10  # Max=10, Default=10
+
+# optional
+http_proxy = ""
+https_proxy = ""
+socks_proxy = ""
+no_proxy = "localhost, 127.0.0.1"
+
+
+[source.firefox]
+# required
+enabled = false
+# required
+dir = "/path/to/firefox/profile/folder/"
+# required, options: hourly, daily, weekly
+frequency = "daily"
+
+
+[source.sensitive]
+# required
+enabled = false
+# required
+dir = "/path/to/sensitive/folder/"
+# required, options: hourly, daily, weekly
+frequency = "daily"
+
+
+[remote.dropbox]
+# required
+enabled = false
+# required
+app_key = ""
+# required
+app_secret = ""
+
+# optional
+http_proxy = ""
+https_proxy = ""
+socks_proxy = ""
+no_proxy = "localhost, 127.0.0.1"
+
+
+[remote.onedrive]
+# required
+enabled = false
+# required
+client_id = ""
+# required
+client_secret = ""
+
+# optional
+http_proxy = ""
+https_proxy = ""
+socks_proxy = ""
+no_proxy = "localhost, 127.0.0.1"
+
+
+[remote.icloud]
+# required
+enabled = false
+# required
+apple_id = ""
+client_id = ""
+
+# optional
+http_proxy = ""
+https_proxy = ""
+socks_proxy = ""
+no_proxy = "localhost, 127.0.0.1"
+
+
+[remote.sftp]
+# required
+enabled = false
+
+# Need setup NoPassword Login first
+username = ""
+ipaddr = ""
+port = 20270
+
+# optional
+http_proxy = ""
+https_proxy = ""
+socks_proxy = ""
+no_proxy = "localhost, 127.0.0.1"

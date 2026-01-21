@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Backup Command",
+  "description": "Schema for the backup CLI command arguments",
+  "type": "object",
+  "properties": {
+    "password": {
+      "type": "string",
+      "description": "User password for encryption/decryption",
+      "minLength": 1
+    },
+    "dry-run": {
+      "type": "boolean",
+      "description": "Perform dry run without actual backup",
+      "default": false
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["firefox", "folder"]
+      },
+      "description": "Specific sources to backup, defaults to all enabled",
+      "default": []
+    }
+  },
+  "required": ["password"]
+}

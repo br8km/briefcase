@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Config Command",
+  "description": "Schema for the config CLI command arguments",
+  "type": "object",
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": ["init", "edit", "validate", "show"],
+      "description": "Configuration action to perform"
+    },
+    "password": {
+      "type": "string",
+      "description": "Password for key generation (required for init)",
+      "minLength": 1
+    },
+    "password-hint": {
+      "type": "string",
+      "description": "Password hint for user reminder",
+      "minLength": 1
+    },
+    "file": {
+      "type": "string",
+      "description": "Custom config file path",
+      "default": "~/.config/briefcase/briefcase.toml"
+    }
+  },
+  "required": ["action"],
+  "if": {
+    "properties": { "action": { "const": "init" } }
+  },
+  "then": {
+    "required": ["password", "password-hint"]
+  }
+}

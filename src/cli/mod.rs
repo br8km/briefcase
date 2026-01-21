@@ -1,0 +1,40 @@
+pub mod backup;
+pub mod config;
+pub mod crypto;
+pub mod schedule;
+pub mod sync;
+
+use anyhow::Result;
+use clap::{Parser, Subcommand};
+
+#[derive(Parser)]
+#[command(name = "briefcase")]
+#[command(about = "CLI application for backing up personal sensitive data")]
+pub struct Cli {
+    #[command(subcommand)]
+    pub command: Commands,
+}
+
+#[derive(Subcommand)]
+pub enum Commands {
+    /// Initialize configuration
+    Config(config::ConfigArgs),
+    /// Perform backup
+    Backup(backup::BackupArgs),
+    /// Sync to remote storage
+    Sync(sync::SyncArgs),
+    /// Schedule operations
+    Schedule(schedule::ScheduleArgs),
+    /// Crypto operations
+    Crypto(crypto::CryptoArgs),
+}
+
+pub async fn run(cli: Cli) -> Result<()> {
+    match cli.command {
+        Commands::Config(args) => config::run(args).await,
+        Commands::Backup(args) => backup::run(args).await,
+        Commands::Sync(args) => sync::run(args).await,
+        Commands::Schedule(args) => schedule::run(args).await,
+        Commands::Crypto(args) => crypto::run(args).await,
+    }
+}

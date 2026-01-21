@@ -1,0 +1,40 @@
+[package]
+name = "briefcase"
+version = "0.1.0"
+edition = "2021"
+description = "CLI application for backing up small-size personal sensitive data"
+authors = ["br8km <br8km@nonexist-domain.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/br8km/briefcase"
+keywords = ["backup", "encryption", "cli"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+aes-gcm = "0.10"
+sevenz-rust = "0.6"
+clap = { version = "4.0", features = ["derive"] }
+toml = "0.8"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-appender = "0.2"
+librclone = "0.5"
+anyhow = "1.0"
+thiserror = "1.0"
+pbkdf2 = "0.12"
+hmac = "0.12"
+sha2 = "0.10"
+dirs = "5.0"
+rand = "0.8"
+argon2 = "0.5"
+directories = "5.0"
+rpassword = "7.0"
+uuid = { version = "1.0", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+regex = "1.0"
+aead = "0.5"
+
+[dev-dependencies]
+tempfile = "3.0"
