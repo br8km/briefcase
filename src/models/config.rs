@@ -11,7 +11,8 @@ pub struct Config {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GeneralConfig {
     pub password_hint: String,
-    pub password_key: String,
+    pub password_hash: String,  // Argon2 hash for verification
+    pub encryption_key: String, // Derived key for AES encryption/decryption
     pub max_retention: u32,
     pub http_proxy: Option<String>,
     pub https_proxy: Option<String>,
@@ -104,7 +105,8 @@ impl Default for Config {
         Self {
             general: GeneralConfig {
                 password_hint: "What is your favorite color?".to_string(),
-                password_key: String::new(),
+                password_hash: String::new(),
+                encryption_key: String::new(),
                 max_retention: 10,
                 http_proxy: None,
                 https_proxy: None,

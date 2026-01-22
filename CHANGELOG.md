@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial release of Briefcase backup application
-- Secure AES-256-GCM encryption with PBKDF2
+- Secure AES-256-GCM encryption with Argon2 key derivation
 - Firefox profile data backup (bookmarks, passwords, settings)
 - Custom folder backup support
 - 7Zip compression for efficient storage
@@ -18,7 +18,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Background daemon for automated backups
 - Comprehensive CLI interface with subcommands
 - Configuration validation and management
-- Daily log rotation with structured logging
+- Monthly log rotation with structured logging (YYYY-MM.log format)
+- Cross-device recovery with password-based decryption
+- Optimized binary size with minimal dependencies
+
+### Fixed
+- Critical encryption design flaw preventing recovery without config file
+- Build warnings and deprecated API usage
+- Logging system optimized for smaller executable size
+
+### Removed
+- Unused dependencies (pbkdf2, hmac, sha2, regex, uuid, directories)
+- Web UI module (not needed for CLI-focused tool)
+- Unimplemented features from documentation
 - Retention policy enforcement
 - Dry-run mode for safe operations
 - Cross-platform support (Linux, macOS, Windows planned)

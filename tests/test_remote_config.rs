@@ -1,8 +1,5 @@
 use briefcase::config::validate_config;
-use briefcase::models::config::{
-    DropboxConfig, ICloudConfig, OneDriveConfig, RemoteConfig, SFTPConfig,
-};
-use std::path::PathBuf;
+use briefcase::models::config::{DropboxConfig, ICloudConfig, OneDriveConfig, SFTPConfig};
 
 #[cfg(test)]
 mod tests {

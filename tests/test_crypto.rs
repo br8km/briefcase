@@ -1,6 +1,5 @@
 use briefcase::crypto::encrypt::{decrypt_file, encrypt_file};
 use std::fs;
-use std::path::Path;
 use tempfile::tempdir;
 
 #[cfg(test)]

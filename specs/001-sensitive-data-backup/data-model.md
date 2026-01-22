@@ -46,7 +46,7 @@ Represents an encrypted backup archive.
 
 **Validation Rules**:
 - Path must be valid file
-- Size <= 10MB
+- Size <= 32MB
 - Datetime in past
 - Hash matches content
 
@@ -87,7 +87,7 @@ Represents temporary working directory for backup staging.
 
 **Validation Rules**:
 - Path writable
-- Size limit <= 10MB
+- Size limit <= 32MB
 - Auto-cleanup on drop
 
 **State Transitions**: Created → Populated → Cleaned

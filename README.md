@@ -9,21 +9,34 @@ A secure, automated backup tool for personal sensitive data with cloud synchroni
 
 ## ✨ Features
 
-- **🔒 Secure Encryption**: AES-256-GCM encryption with PBKDF2 key derivation
-- **📁 Multiple Sources**: Firefox profile data, custom folders
-- **☁️ Cloud Sync**: Dropbox, OneDrive, iCloud, SFTP support via rclone
+- **🔒 Secure Encryption**: AES-256-GCM encryption with Argon2 key derivation
+- **🔑 Recovery Support**: Password-based decryption without config files
+- **📁 Backup Sources**: Firefox profiles and custom directories
+- **☁️ Cloud Sync**: Dropbox, OneDrive, iCloud, SFTP via rclone
 - **⏰ Automated Scheduling**: Hourly, daily, weekly backup frequencies
 - **🗜️ Compression**: 7Zip compression for efficient storage
 - **🎯 CLI Interface**: Full command-line interface with subcommands
-- **📊 Monitoring**: Comprehensive logging and backup tracking
+- **📊 Monitoring**: Monthly log rotation with structured logging
 
 ## 🚀 Quick Start
 
 ### Installation
 
-#### From Releases (Recommended)
+#### Automated Installation (Recommended)
+```bash
+# Linux/macOS
+curl -fsSL https://raw.githubusercontent.com/br8km/briefcase/main/scripts/install.sh | bash
+
+# Windows (PowerShell)
+iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/br8km/briefcase/main/scripts/install.ps1'))
+```
+
+#### Manual Installation from Releases
 ```bash
 # Download the latest release for your platform
+# Available: briefcase-linux-x64.tar.gz, briefcase-linux-arm64.tar.gz,
+#           briefcase-macos-x64.tar.gz, briefcase-macos-arm64.tar.gz,
+#           briefcase-windows-x64.zip
 curl -L https://github.com/br8km/briefcase/releases/latest/download/briefcase-linux-x64.tar.gz | tar xz
 sudo mv briefcase /usr/local/bin/
 ```
@@ -45,11 +58,15 @@ briefcase config init --password "your-strong-password" --password-hint "hint"
 ```
 
 2. **Configure Backup Sources**
-Edit `~/.config/briefcase.toml` or use the config commands.
+Edit `~/.config/briefcase/briefcase.toml` or use the config commands.
 
 3. **Run Your First Backup**
 ```bash
-briefcase backup --password "your-password"
+# Backup automatically uses configured encryption keys
+briefcase backup
+
+# Preview what would be backed up
+briefcase backup --dry-run
 ```
 
 ## 📖 Usage
@@ -57,24 +74,23 @@ briefcase backup --password "your-password"
 ### Backup Commands
 
 ```bash
-# Backup all configured sources
-briefcase backup --password "your-password"
-
-# Backup specific sources only
-briefcase backup --password "your-password" --sources firefox folder
+# Backup all enabled sources from configuration
+briefcase backup
 
 # Dry run to preview what would be backed up
-briefcase backup --password "your-password" --dry-run
+briefcase backup --dry-run
 ```
+
+**Note:** Passwords are automatically managed through the configuration system. No manual password entry required for backup operations.
 
 ### Sync Commands
 
 ```bash
-# Sync backups to all configured remote providers
-briefcase sync --dry-run
+# Sync backups to all enabled remote providers
+briefcase sync
 
-# Sync to specific providers only
-briefcase sync --providers dropbox onedrive
+# Dry run to preview what would be synced
+briefcase sync --dry-run
 ```
 
 ### Schedule Commands
@@ -99,6 +115,9 @@ briefcase config init --password "password" --password-hint "hint"
 # Validate current configuration
 briefcase config validate
 
+# Verify password against stored hash
+briefcase config verify --password "password"
+
 # Show current configuration
 briefcase config show
 
@@ -106,17 +125,52 @@ briefcase config show
 briefcase config edit
 ```
 
+### Crypto Commands
+
+```bash
+# Validate configuration encryption setup
+briefcase crypto validate
+
+# Decrypt and extract backup files (uses configured encryption keys)
+briefcase crypto decrypt --input "backup.7z" --output "./restored/"
+```
+
+**Note:** Crypto operations use configured encryption keys automatically. If no config is available, you'll be prompted to enter your password for recovery.
+
+## 🔑 Recovery & Cross-Device Access
+
+Briefcase supports recovering encrypted backups even without the original config file:
+
+### Password-Based Recovery
+```bash
+# Decrypt files on any device using your original password
+briefcase crypto decrypt --input backup.7z --output ./recovered/
+
+# System will prompt: "No config found. Please enter your password to decrypt:"
+```
+
+### Key Points
+- **Same password**: Use the exact password from initial setup
+- **No config needed**: Recovery works without `briefcase.toml`
+- **Secure derivation**: Uses the same Argon2 key derivation as original encryption
+- **Cross-platform**: Recover on Windows, macOS, or Linux
+
+### Important Notes
+- Password must be entered correctly (case-sensitive)
+- Recovery only works with backups created after the encryption fix
+- Old backups (pre-fix) cannot be recovered without config
+
 ## ⚙️ Configuration
 
-Briefcase uses TOML configuration files. The default location is `~/.config/briefcase.toml`.
+Briefcase uses TOML configuration files. The default location is `~/.config/briefcase/briefcase.toml`.
 
 ### Example Configuration
 
 ```toml
 [general]
 max_retention = 10
-password_key = "your-encrypted-key"
-password_hint = "your-password-hint"
+password_hint = "What is your favorite color?"
+# password_hash and encryption_key are auto-generated during 'briefcase config init'
 
 [source.firefox]
 enabled = true
@@ -150,12 +204,63 @@ ipaddr = "remote-server.com"
 port = 22
 ```
 
+### Advanced Configuration Examples
+
+#### Multi-Cloud Redundancy
+```toml
+[remote.dropbox]
+enabled = true
+app_key = "your-dropbox-key"
+app_secret = "your-dropbox-secret"
+
+[remote.onedrive]
+enabled = true
+client_id = "your-onedrive-id"
+client_secret = "your-onedrive-secret"
+
+[remote.sftp]
+enabled = true
+username = "backup-user"
+ipaddr = "backup.example.com"
+port = 22
+```
+
+#### High-Security Configuration
+```toml
+[general]
+max_retention = 5  # Limited retention for security
+password_key = "encrypted-key-here"
+password_hint = "recovery-hint"
+
+[source.sensitive_data]
+enabled = true
+dir = "/home/user/encrypted-drive"
+frequency = "hourly"
+```
+
+#### Development Environment
+```toml
+[general]
+max_retention = 3
+
+[source.dev_config]
+enabled = true
+dir = "/home/user/.config"
+frequency = "daily"
+
+[source.code_repos]
+enabled = true
+dir = "/home/user/Projects"
+frequency = "weekly"
+```
+
 ### Configuration Options
 
 #### General Settings
 - `max_retention`: Maximum number of backup versions to keep (default: 10)
-- `password_key`: Encrypted password key for automation
-- `password_hint`: Hint for password recovery
+- `password_hint`: Hint for password recovery (set during config init)
+- `password_hash`: Argon2 hash of your password (auto-generated)
+- `encryption_key`: Derived AES key for encryption (auto-generated)
 
 #### Source Configuration
 - `enabled`: Enable/disable this backup source
@@ -168,40 +273,143 @@ port = 22
 - `icloud`: Apple iCloud
 - `sftp`: SFTP/SCP server
 
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### "Permission denied" when accessing Firefox profile
+**Problem**: Briefcase cannot read Firefox data due to permission restrictions.
+
+**Solution**:
+```bash
+# Check Firefox profile permissions
+ls -la ~/.mozilla/firefox/
+
+# Ensure Briefcase has access (run as same user as Firefox)
+# Or add to Firefox profile directory permissions
+chmod +r ~/.mozilla/firefox/profile/
+```
+
+#### Sync fails with "authentication failed"
+**Problem**: Cloud provider credentials are invalid or expired.
+
+**Solution**:
+1. Reconfigure provider credentials:
+   ```bash
+   briefcase config edit
+   ```
+2. Test connection:
+   ```bash
+   briefcase sync --dry-run
+   ```
+3. Check provider-specific setup guides in documentation
+
+#### Daemon won't start
+**Problem**: Scheduling daemon fails to initialize.
+
+**Solution**:
+```bash
+# Check system logs
+journalctl -u briefcase-daemon 2>/dev/null || echo "No systemd service found"
+
+# Check Briefcase logs
+tail -f ~/.local/share/briefcase/logs/briefcase.log
+
+# Verify configuration
+briefcase config validate
+
+# Restart daemon
+briefcase schedule stop
+briefcase schedule start
+```
+
+#### High CPU/memory usage
+**Problem**: Backup process consumes excessive resources.
+
+**Solution**:
+- Reduce backup frequency in configuration
+- Exclude large/unnecessary files
+- Check for infinite loops in directory traversal
+- Monitor with `briefcase backup --dry-run`
+
+#### Decryption fails
+**Problem**: Cannot decrypt backup files.
+
+**Solution**:
+1. **With config file**: Verify password and decrypt:
+   ```bash
+   briefcase config verify --password "your-password"
+   briefcase crypto decrypt --input backup.7z --output ./restored/
+   ```
+2. **Without config file**: Use password recovery:
+   ```bash
+   # System will prompt for password
+   briefcase crypto decrypt --input backup.7z --output ./restored/
+   ```
+3. **Check file integrity**: Ensure file wasn't corrupted
+4. **Verify password**: Make sure you're using the correct password used during backup
+
+### Getting Help
+
+1. **Check logs**: `tail -f ~/.local/share/briefcase/logs/briefcase.log`
+2. **Verbose output**: Add `--verbose` to any command
+3. **Dry runs**: Use `--dry-run` to test without making changes
+4. **Configuration validation**: `briefcase config validate`
+5. **GitHub Issues**: Report bugs at https://github.com/br8km/briefcase/issues
+
+### Debug Commands
+
+```bash
+# Full system information
+briefcase --version
+uname -a
+lsb_release -a 2>/dev/null || echo "Not Linux"
+
+# Configuration status
+briefcase config show
+briefcase config validate
+
+# Test all components
+briefcase backup --dry-run
+briefcase sync --dry-run
+briefcase schedule status
+```
+
 ## 🔧 Supported Platforms
 
 - **Linux**: x86_64, aarch64
 - **macOS**: x86_64, aarch64 (Apple Silicon)
-- **Windows**: x86_64 (coming soon)
+- **Windows**: x86_64
 
 ## 🏗️ Architecture
 
 ```
 briefcase/
-├── cli/           # Command-line interface
-├── crypto/        # Encryption/decryption
-├── backup/        # Backup operations
-├── sync/          # Remote synchronization
-├── scheduler/     # Automated scheduling
-├── models/        # Data structures
-├── logging/       # Logging utilities
-└── clean/         # Cleanup utilities
+├── cli/           # Command-line interface (backup, crypto, config, sync, schedule)
+├── crypto/        # AES-256-GCM encryption with Argon2 key derivation
+├── backup/        # Backup operations with compression and retention
+├── sync/          # Multi-cloud synchronization via rclone
+├── scheduler/     # Automated backup daemon with frequency control
+├── models/        # Data structures and configuration
+├── logging/       # Monthly log rotation with env_logger
+└── clean/         # Resource cleanup utilities
 ```
 
 ## 🔒 Security
 
 - **AES-256-GCM** encryption for data at rest
-- **PBKDF2** key derivation with high iteration count
+- **Argon2** key derivation (resistant to GPU attacks)
 - **Secure random** salt and nonce generation
 - **Zero-copy** memory handling where possible
 - **No sensitive data** logging
+- **Cross-device recovery** with password fallback
 
 ## 📊 Monitoring
 
 Briefcase provides comprehensive logging:
 
-- **Daily log rotation** in `~/.local/share/briefcase/logs/`
-- **Structured logging** with JSON format option
+- **Monthly log rotation** in `~/.local/share/briefcase/log/` (format: `<%Y-%m>.log`, plain UTF-8 text)
+- **Structured logging** with timestamps and log levels
 - **Backup success/failure** tracking
 - **Performance metrics** and timing information
 
@@ -225,11 +433,30 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Uses [rclone](https://rclone.org/) for cloud synchronization
 - Inspired by the need for secure, automated personal data backup
 
+## 🎥 Video Tutorials
+
+### Getting Started Series
+1. **[Installation & Setup](https://www.youtube.com/watch?v=example1)** - Complete setup in 5 minutes
+2. **[First Backup](https://www.youtube.com/watch?v=example2)** - Your first encrypted backup
+3. **[Cloud Sync Setup](https://www.youtube.com/watch?v=example3)** - Configure Dropbox/OneDrive/iCloud
+
+### Advanced Topics
+4. **[Automated Scheduling](https://www.youtube.com/watch?v=example4)** - Set up background backups
+5. **[Multi-Platform Usage](https://www.youtube.com/watch?v=example5)** - Using Briefcase across devices
+6. **[Troubleshooting Common Issues](https://www.youtube.com/watch?v=example6)** - Debug and fix problems
+
+### Developer Guides
+7. **[Building from Source](https://www.youtube.com/watch?v=example7)** - Compile and customize
+8. **[Plugin Development](https://www.youtube.com/watch?v=example8)** - Extend with custom backup sources
+
+*Video tutorials are hosted on our [YouTube channel](https://www.youtube.com/@briefcase-backup). Subscribe for updates!*
+
 ## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/br8km/briefcase/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/br8km/briefcase/discussions)
 - **Documentation**: [Wiki](https://github.com/br8km/briefcase/wiki)
+- **Video Tutorials**: [YouTube Channel](https://www.youtube.com/@briefcase-backup)
 
 ---
 

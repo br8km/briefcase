@@ -2,7 +2,7 @@ use crate::models::backup_file::BackupFile;
 use crate::models::config::Config;
 use crate::sync::rclone;
 use anyhow::Result;
-use tracing::{error, info};
+use log::{error, info};
 
 pub struct SyncService {
     config: Config,

@@ -19,6 +19,15 @@ pub fn save_config(config: &Config, path: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Verify a password against the stored password hash
+pub fn verify_password(config: &Config, password: &str) -> Result<bool> {
+    if config.general.password_hash.is_empty() {
+        return Ok(false); // No password set
+    }
+
+    crate::crypto::encrypt::verify_password(password, &config.general.password_hash)
+}
+
 pub fn validate_config(config: &Config) -> Result<()> {
     // Validate general
     if config.general.max_retention == 0 || config.general.max_retention > 10 {
@@ -82,7 +91,6 @@ pub fn get_config_path() -> Result<std::path::PathBuf> {
 mod tests {
     use super::*;
     use std::path::PathBuf;
-    use tempfile::tempdir;
 
     #[test]
     fn test_load_default_config() {

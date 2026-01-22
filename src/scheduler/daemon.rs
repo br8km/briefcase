@@ -1,10 +1,12 @@
 use crate::backup::service::BackupService;
+use crate::models::backup_file::BackupFile;
 use crate::models::config::Config;
+use base64::{engine::general_purpose, Engine as _};
+use log::{error, info};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tokio::time::{self, Duration};
-use tracing::{error, info};
 
 pub struct Daemon {
     config: Arc<Mutex<Config>>,
@@ -14,7 +16,14 @@ pub struct Daemon {
 impl Daemon {
     pub fn new(config: Config) -> Self {
         let config = Arc::new(Mutex::new(config.clone()));
-        let backup_service = BackupService::new(config.clone(), PathBuf::from("/tmp/backup"));
+
+        // Use the same data directory as other backup operations
+        let data_dir = dirs::data_local_dir()
+            .unwrap_or_else(|| PathBuf::from("/tmp"))
+            .join("briefcase")
+            .join("data");
+
+        let backup_service = BackupService::new(config.clone(), data_dir);
 
         Self {
             config,
@@ -56,15 +65,75 @@ impl Daemon {
     async fn run_backup(&self, source: &str) -> anyhow::Result<()> {
         info!("Running scheduled backup for {}", source);
 
-        // Would need to get password securely, perhaps from keyring
-        let password = "dummy_password"; // TODO: Secure password retrieval
+        // Get encryption_key from config for automated backups
+        let config = self.config.lock().await;
+        if config.general.encryption_key.is_empty() {
+            return Err(anyhow::anyhow!(
+                "Config not initialized - no encryption key found for automated backup"
+            ));
+        }
 
-        let _backup_files = self.backup_service.perform_backup(password).await?;
+        let encryption_key_bytes = general_purpose::STANDARD
+            .decode(&config.general.encryption_key)
+            .map_err(|e| anyhow::anyhow!("Failed to decode encryption key: {}", e))?;
+        let mut encryption_key = [0u8; 32];
+        encryption_key.copy_from_slice(&encryption_key_bytes);
 
-        // Sync if enabled
-        // TODO: Integrate sync
+        let backup_files = self
+            .backup_service
+            .perform_backup_with_key(&encryption_key)
+            .await?;
+        info!("Created {} backup files", backup_files.len());
+
+        // Sync if any remote providers are enabled
+        if self.has_enabled_remotes(&config) {
+            drop(config); // Release lock before calling run_sync
+            self.run_sync(&backup_files).await?;
+        }
 
         info!("Scheduled backup completed for {}", source);
+        Ok(())
+    }
+
+    fn has_enabled_remotes(&self, config: &Config) -> bool {
+        if let Some(dropbox) = &config.remote.dropbox {
+            if dropbox.enabled {
+                return true;
+            }
+        }
+        if let Some(onedrive) = &config.remote.onedrive {
+            if onedrive.enabled {
+                return true;
+            }
+        }
+        if let Some(icloud) = &config.remote.icloud {
+            if icloud.enabled {
+                return true;
+            }
+        }
+        if let Some(sftp) = &config.remote.sftp {
+            if sftp.enabled {
+                return true;
+            }
+        }
+        false
+    }
+
+    async fn run_sync(&self, backup_files: &[BackupFile]) -> anyhow::Result<()> {
+        use crate::sync::service::SyncService;
+
+        let config = self.config.lock().await.clone();
+        let service = SyncService::new(config);
+
+        if service.validate_remotes().is_ok() {
+            info!(
+                "Starting automated sync of {} backup files",
+                backup_files.len()
+            );
+            service.sync_backups(backup_files, false).await?;
+            info!("Automated sync completed");
+        }
+
         Ok(())
     }
 }

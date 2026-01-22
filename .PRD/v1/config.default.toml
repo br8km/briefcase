@@ -11,8 +11,11 @@ MaxRetention = 10
 
 # optional
 http_proxy = ""
+# optional
 https_proxy = ""
+# optional
 socks_proxy = ""
+# optional
 no_proxy = "localhost, 127.0.0.1"
 
 
@@ -42,11 +45,16 @@ app_key = ""
 # required
 app_secret = ""
 
+
 # optional
 http_proxy = ""
+# optional
 https_proxy = ""
+# optional
 socks_proxy = ""
+# optional
 no_proxy = "localhost, 127.0.0.1"
+
 
 
 [remote.onedrive]
@@ -59,9 +67,13 @@ client_secret = ""
 
 # optional
 http_proxy = ""
+# optional
 https_proxy = ""
+# optional
 socks_proxy = ""
+# optional
 no_proxy = "localhost, 127.0.0.1"
+
 
 
 [remote.icloud]
@@ -69,13 +81,18 @@ no_proxy = "localhost, 127.0.0.1"
 enabled = false
 # required
 apple_id = ""
+# required
 client_id = ""
 
 # optional
 http_proxy = ""
+# optional
 https_proxy = ""
+# optional
 socks_proxy = ""
+# optional
 no_proxy = "localhost, 127.0.0.1"
+
 
 
 [remote.sftp]
@@ -84,11 +101,16 @@ enabled = false
 
 # required, need setup NoPassword Login first
 username = ""
+# required
 ipaddr = ""
+# required
 port = 22
 
 # optional
 http_proxy = ""
+# optional
 https_proxy = ""
+# optional
 socks_proxy = ""
+# optional
 no_proxy = "localhost, 127.0.0.1"

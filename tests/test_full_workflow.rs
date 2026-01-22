@@ -1,7 +1,5 @@
 use briefcase::backup::service::BackupService;
-use briefcase::config;
 use briefcase::sync::service::SyncService;
-use std::path::PathBuf;
 use tempfile::tempdir;
 
 #[cfg(test)]
