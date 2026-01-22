@@ -1,6 +1,5 @@
 use briefcase::backup::service::BackupService;
 use briefcase::models::config::Config;
-use std::path::PathBuf;
 use std::sync::Arc;
 use tempfile::tempdir;
 use tokio::sync::Mutex;

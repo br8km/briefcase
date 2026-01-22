@@ -1,6 +1,6 @@
 use briefcase::models::config::Frequency;
 use briefcase::scheduler::service::SchedulerService;
-use chrono::{DateTime, Duration, Utc};
+use chrono::{Duration, Utc};
 
 #[cfg(test)]
 mod tests {
@@ -8,7 +8,7 @@ mod tests {
 
     #[test]
     fn test_scheduler_service_creation() {
-        let service = SchedulerService;
+        let _service = SchedulerService;
         // Just check it exists
         assert!(true);
     }

@@ -23,8 +23,8 @@ Implement a Rust CLI application for secure backup of small-size personal sensit
 **Testing**: cargo test with unit, integration, and end-to-end tests  
 **Target Platform**: Linux (x86_64, ARM64)  
 **Project Type**: CLI application  
-**Performance Goals**: Backup completion in <5 minutes for 10MB data, sync in <10 minutes, 95% success rate  
-**Constraints**: Max 10MB data size, Linux-only, encrypted storage, no unsafe code  
+**Performance Goals**: Backup completion in <5 minutes for 32MB data, sync in <10 minutes, 95% success rate  
+**Constraints**: Max 32MB data size, Linux-only, encrypted storage, no unsafe code  
 **Scale/Scope**: Single-user personal backup tool, ~5k LOC, 10+ CLI commands
 
 ## Constitution Check

@@ -40,10 +40,18 @@ cargo build --release
 
 ## Basic Usage
 
+**Note:** After initial setup, backup and sync operations are completely password-free. The system uses your configured password key automatically.
+
 ### Perform Backup
 ```bash
-./target/release/briefcase backup --password yourpassword
-# Backs up enabled sources (Firefox + folder)
+./target/release/briefcase backup
+# Backs up all enabled sources from configuration
+```
+
+### Preview Backup (Dry Run)
+```bash
+./target/release/briefcase backup --dry-run
+# Shows what would be backed up without actually doing it
 ```
 
 ### Sync to Remote
@@ -54,7 +62,8 @@ cargo build --release
 
 ### Decrypt and Restore
 ```bash
-./target/release/briefcase crypto decrypt --password yourpassword --input Firefox_2026-01-19_12-00-00.7z --output ./restored/
+./target/release/briefcase crypto decrypt --input Firefox_2026-01-19_12-00-00.7z --output ./restored/
+# Uses configured password key automatically
 ```
 
 ## Configuration Example
@@ -64,7 +73,7 @@ Edit `~/.config/briefcase/briefcase.toml`:
 ```toml
 [general]
 PasswordHint = "Your hint"
-PasswordKey = "your_password_hash"
+PasswordKey = "sha256_hash_of_your_password"
 MaxRetention = 10
 
 [source.firefox]

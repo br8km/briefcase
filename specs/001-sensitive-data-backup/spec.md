@@ -34,7 +34,7 @@ As a Linux user with sensitive personal data, I want to manually back up my Fire
 2. **Given** backup files exceed max retention limit, **When** new backup completes, **Then** oldest zip files are automatically removed.
 3. **Given** invalid source directory path in config, **When** user runs backup, **Then** error is reported and backup fails gracefully.
 
-**Performance Targets**: Backup must complete within 5 minutes for up to 10MB of data.
+**Performance Targets**: Backup must complete within 5 minutes for up to 32MB of data.
 
 **Security Requirements**: All data must be encrypted using strong hashing algorithm with user-provided password, data at rest must be protected.
 
@@ -148,9 +148,9 @@ As a user managing my backups, I want detailed logging, cleanup capabilities, an
 
 ### Measurable Outcomes
 
-- **SC-001**: Users can complete a full backup process (config to encrypted storage) in under 5 minutes for up to 10MB of data.
+- **SC-001**: Users can complete a full backup process (config to encrypted storage) in under 5 minutes for up to 32MB of data.
 - **SC-002**: System achieves 95% success rate for backup operations over a 30-day period.
 - **SC-003**: Encrypted data remains recoverable with correct password in 100% of test cases.
-- **SC-004**: Remote sync operations complete within 10 minutes for 10MB of data with valid network connection.
+- **SC-004**: Remote sync operations complete within 10 minutes for 32MB of data with valid network connection.
 - **SC-005**: Scheduled backups execute at configured frequencies with 98% reliability.
 - **SC-006**: Log files provide sufficient detail to diagnose issues in 90% of failure scenarios.

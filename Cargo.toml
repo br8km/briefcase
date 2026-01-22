@@ -10,31 +10,32 @@ keywords = ["backup", "encryption", "cli"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-tokio = { version = "1.0", features = ["full"] }
+tokio = { version = "1.0", features = ["rt-multi-thread", "macros", "sync", "time", "fs"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 aes-gcm = "0.10"
 sevenz-rust = "0.6"
 clap = { version = "4.0", features = ["derive"] }
 toml = "0.8"
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
-tracing-appender = "0.2"
+log = "0.4"
+env_logger = "0.10"
 librclone = "0.5"
 anyhow = "1.0"
 thiserror = "1.0"
-pbkdf2 = "0.12"
-hmac = "0.12"
-sha2 = "0.10"
 dirs = "5.0"
 rand = "0.8"
 argon2 = "0.5"
-directories = "5.0"
-rpassword = "7.0"
-uuid = { version = "1.0", features = ["v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 regex = "1.0"
 aead = "0.5"
+zeroize = "1.0"
+base64 = "0.22"
+rpassword = "7.0"
 
 [dev-dependencies]
 tempfile = "3.0"
+
+[profile.release]
+lto = true          # Enable Link-Time Optimization
+strip = "debuginfo" # Strip debug information
+# You can also use 'strip = "all"' for maximum effect, but this can impact crash reports

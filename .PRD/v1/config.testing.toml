@@ -1,0 +1,44 @@
+# Testing config file
+[general]
+
+PasswordHint = "What is your favorite color?"
+PasswordKey = ""
+
+MaxRetention = 10
+
+
+[source.firefox]
+enabled = true
+dir = "/home/runner/Projects/Ops/briefcase/test_data/firefox.profile"
+frequency = "daily"
+
+
+[source.folder]
+enabled = true
+dir = "/home/runner/Projects/Ops/briefcase/test_data/sensitive"
+frequency = "hourly"
+
+
+[remote.dropbox]
+enabled = false
+app_key = ""
+app_secret = ""
+
+
+[remote.onedrive]
+enabled = false
+client_id = ""
+client_secret = ""
+
+
+[remote.icloud]
+enabled = false
+apple_id = ""
+client_id = ""
+
+
+[remote.sftp]
+enabled = false
+username = ""
+ipaddr = ""
+port = 22

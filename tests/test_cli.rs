@@ -8,7 +8,7 @@ mod tests {
     #[test]
     fn test_cli_parsing() {
         // Test that CLI can parse basic commands
-        let args = ["briefcase", "backup", "--password", "test"];
+        let args = ["briefcase", "backup", "--dry-run"];
         let cli = cli::Cli::parse_from(args);
         assert!(matches!(cli.command, cli::Commands::Backup(_)));
     }

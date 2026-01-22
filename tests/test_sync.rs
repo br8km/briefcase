@@ -1,6 +1,5 @@
 use briefcase::models::config::Config;
 use briefcase::sync::service::SyncService;
-use tempfile::tempdir;
 
 #[cfg(test)]
 mod tests {
@@ -9,7 +8,7 @@ mod tests {
     #[test]
     fn test_sync_service_creation() {
         let config = Config::default();
-        let service = SyncService::new(config);
+        let _service = SyncService::new(config);
         // Just check it creates without error
         assert!(true);
     }

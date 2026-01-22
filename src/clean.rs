@@ -1,7 +1,7 @@
 use anyhow::Result;
+use log::info;
 use std::path::PathBuf;
 use tokio::fs;
-use tracing::info;
 
 pub async fn clean_temp_files(temp_dir: &PathBuf) -> Result<()> {
     if temp_dir.exists() {
