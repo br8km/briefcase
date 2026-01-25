@@ -87,6 +87,32 @@ pub fn get_config_path() -> Result<std::path::PathBuf> {
     Ok(config_dir.join("briefcase.toml"))
 }
 
+pub fn get_data_dir() -> Result<std::path::PathBuf> {
+    #[cfg(target_os = "windows")]
+    let base = dirs::data_local_dir();
+    #[cfg(not(target_os = "windows"))]
+    let base = dirs::data_dir();
+    let dir = base
+        .ok_or_else(|| anyhow!("Could not find data directory"))?
+        .join("briefcase")
+        .join("data");
+    std::fs::create_dir_all(&dir)?;
+    Ok(dir)
+}
+
+pub fn get_log_dir() -> Result<std::path::PathBuf> {
+    #[cfg(target_os = "windows")]
+    let base = dirs::config_dir();
+    #[cfg(not(target_os = "windows"))]
+    let base = dirs::data_dir();
+    let dir = base
+        .ok_or_else(|| anyhow!("Could not find log directory"))?
+        .join("briefcase")
+        .join("logs");
+    std::fs::create_dir_all(&dir)?;
+    Ok(dir)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

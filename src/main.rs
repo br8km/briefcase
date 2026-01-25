@@ -6,7 +6,7 @@ use clap::Parser;
 #[tokio::main]
 async fn main() -> Result<()> {
     // Initialize logging
-    let log_dir = logging::get_log_dir();
+    let log_dir = logging::get_log_dir()?;
     std::fs::create_dir_all(&log_dir)?;
     logging::init_logging(&log_dir)?;
 

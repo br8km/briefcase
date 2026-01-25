@@ -42,9 +42,6 @@ pub fn init_logging(log_dir: &PathBuf) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub fn get_log_dir() -> PathBuf {
-    dirs::data_local_dir()
-        .unwrap_or_else(|| PathBuf::from("/tmp"))
-        .join("briefcase")
-        .join("log")
+pub fn get_log_dir() -> anyhow::Result<PathBuf> {
+    crate::config::get_log_dir()
 }
