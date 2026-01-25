@@ -27,6 +27,12 @@ pub async fn run(args: ConfigArgs) -> Result<()> {
         .file
         .unwrap_or_else(|| config::get_config_path().unwrap());
 
+    // Initialize directories when initializing config
+    if args.action == "init" {
+        crate::config::get_data_dir()?;
+        crate::config::get_log_dir()?;
+    }
+
     match args.action.as_str() {
         "init" => {
             let password = args

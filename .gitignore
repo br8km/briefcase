@@ -1,6 +1,6 @@
 # Custom folders/files
-.opencode/*
 .draft/*
+.opencode/*
 .reports/*
 .specify/scripts
 .specify/templates
