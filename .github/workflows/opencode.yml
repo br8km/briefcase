@@ -28,4 +28,4 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         with:
-          model: openrouter/mistralai/devstral-2512:free
+          model: openrouter/x-ai/grok-code-fast-1

@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main, 001-sensitive-data-backup ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, 001-sensitive-data-backup ]
+    branches: [ main ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -96,7 +96,7 @@ jobs:
         7z a ../../../${{ matrix.name }}.zip briefcase.exe
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.name }}
         path: ${{ matrix.name }}.*
@@ -109,7 +109,7 @@ jobs:
 
     steps:
     - name: Download all artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: artifacts
 
