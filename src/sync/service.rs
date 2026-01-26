@@ -14,33 +14,9 @@ impl SyncService {
     }
 
     pub async fn sync_backups(&self, backup_files: &[BackupFile], dry_run: bool) -> Result<()> {
-        if let Some(dropbox) = &self.config.remote.dropbox {
-            if dropbox.enabled {
-                self.sync_to_provider(backup_files, "dropbox:", dry_run)
-                    .await?;
-            }
-        }
-
-        if let Some(onedrive) = &self.config.remote.onedrive {
-            if onedrive.enabled {
-                self.sync_to_provider(backup_files, "onedrive:", dry_run)
-                    .await?;
-            }
-        }
-
-        if let Some(icloud) = &self.config.remote.icloud {
-            if icloud.enabled {
-                self.sync_to_provider(backup_files, "icloud:", dry_run)
-                    .await?;
-            }
-        }
-
-        if let Some(sftp) = &self.config.remote.sftp {
-            if sftp.enabled {
-                let remote_path = format!(
-                    "sftp:{}@{}:{}/backup",
-                    sftp.username, sftp.ipaddr, sftp.port
-                );
+        for remote_provider in self.config.remote.remotes.values() {
+            if remote_provider.enabled {
+                let remote_path = format!("{}:", remote_provider.name);
                 self.sync_to_provider(backup_files, &remote_path, dry_run)
                     .await?;
             }
@@ -55,10 +31,21 @@ impl SyncService {
         remote_base: &str,
         dry_run: bool,
     ) -> Result<()> {
+        let briefcase_dir = format!("{}/briefcase", remote_base.trim_end_matches('/'));
+
+        if dry_run {
+            info!("Would create briefcase directory: {}", briefcase_dir);
+        } else {
+            match rclone::mkdir_remote(&briefcase_dir) {
+                Ok(_) => info!("Ensured briefcase directory exists: {}", briefcase_dir),
+                Err(e) => error!("Failed to create briefcase directory {}: {}", briefcase_dir, e),
+            }
+        }
+
         for file in backup_files {
             let remote_path = format!(
-                "{}{}",
-                remote_base,
+                "{}/{}",
+                briefcase_dir,
                 file.path.file_name().unwrap().to_string_lossy()
             );
 
@@ -75,21 +62,12 @@ impl SyncService {
 
     pub fn validate_remotes(&self) -> Result<()> {
         // Test connections to enabled remotes
-        if let Some(dropbox) = &self.config.remote.dropbox {
-            if dropbox.enabled && !rclone::test_remote_connection("dropbox:")? {
-                return Err(anyhow::anyhow!("Dropbox connection failed"));
-            }
-        }
-
-        if let Some(onedrive) = &self.config.remote.onedrive {
-            if onedrive.enabled && !rclone::test_remote_connection("onedrive:")? {
-                return Err(anyhow::anyhow!("OneDrive connection failed"));
-            }
-        }
-
-        if let Some(icloud) = &self.config.remote.icloud {
-            if icloud.enabled && !rclone::test_remote_connection("icloud:")? {
-                return Err(anyhow::anyhow!("iCloud connection failed"));
+        for remote_provider in self.config.remote.remotes.values() {
+            if remote_provider.enabled {
+                let remote_path = format!("{}:", remote_provider.name);
+                if !rclone::test_remote_connection(&remote_path)? {
+                    return Err(anyhow::anyhow!("{} connection failed", remote_provider.name));
+                }
             }
         }
 

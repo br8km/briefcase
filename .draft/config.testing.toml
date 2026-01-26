@@ -26,50 +26,17 @@ frequency = "hourly"
 
 
 [remote.dropbox]
-
+name = "dropbox"
 enabled = false
-
-app_key = ""
-app_secret = ""
-
-http_proxy=""
-https_proxy=""
-socks_proxy= ""
-
 
 [remote.onedrive]
-
+name = "onedrive"
 enabled = false
 
-client_id = ""
-client_secret = ""
-
-http_proxy=""
-https_proxy=""
-socks_proxy= ""
-
-
-[remote.icloud]
-
+[remote.iclouddrive]
+name = "iclouddrive"
 enabled = false
-
-apple_id = ""
-client_id = ""
-trust_token = ""
-
-http_proxy=""
-https_proxy=""
-socks_proxy= ""
-
 
 [remote.sftp]
-
+name = "sftp"
 enabled = false
-
-username = ""
-ipaddr = ""
-port = 20270
-
-http_proxy=""
-https_proxy=""
-socks_proxy= ""

@@ -1,3 +1,5 @@
+# XDG
+
 We are going to follow `XDG Base Directory Specification` to refine our `briefcase` applicaton relative file/folder paths, so that this app will behave smoothly for various known operation systems: Linux, MacOS and Windows.
 
 ## config file path

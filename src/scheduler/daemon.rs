@@ -96,27 +96,7 @@ impl Daemon {
     }
 
     fn has_enabled_remotes(&self, config: &Config) -> bool {
-        if let Some(dropbox) = &config.remote.dropbox {
-            if dropbox.enabled {
-                return true;
-            }
-        }
-        if let Some(onedrive) = &config.remote.onedrive {
-            if onedrive.enabled {
-                return true;
-            }
-        }
-        if let Some(icloud) = &config.remote.icloud {
-            if icloud.enabled {
-                return true;
-            }
-        }
-        if let Some(sftp) = &config.remote.sftp {
-            if sftp.enabled {
-                return true;
-            }
-        }
-        false
+        config.remote.remotes.values().any(|remote| remote.enabled)
     }
 
     async fn run_sync(&self, backup_files: &[BackupFile]) -> anyhow::Result<()> {

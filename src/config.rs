@@ -49,29 +49,10 @@ pub fn validate_config(config: &Config) -> Result<()> {
         ));
     }
 
-    // Validate remotes if enabled
-    if let Some(dropbox) = &config.remote.dropbox {
-        if dropbox.enabled && (dropbox.app_key.is_empty() || dropbox.app_secret.is_empty()) {
-            return Err(anyhow!("Dropbox app_key and app_secret are required"));
-        }
-    }
-
-    if let Some(onedrive) = &config.remote.onedrive {
-        if onedrive.enabled && (onedrive.client_id.is_empty() || onedrive.client_secret.is_empty())
-        {
-            return Err(anyhow!("OneDrive client_id and client_secret are required"));
-        }
-    }
-
-    if let Some(icloud) = &config.remote.icloud {
-        if icloud.enabled && (icloud.apple_id.is_empty() || icloud.client_id.is_empty()) {
-            return Err(anyhow!("iCloud apple_id and client_id are required"));
-        }
-    }
-
-    if let Some(sftp) = &config.remote.sftp {
-        if sftp.enabled && (sftp.username.is_empty() || sftp.ipaddr.is_empty()) {
-            return Err(anyhow!("SFTP username and ipaddr are required"));
+    // Validate remotes - no API credentials needed as they're stored in rclone config
+    for (remote_key, remote_provider) in &config.remote.remotes {
+        if remote_provider.enabled && remote_provider.name.is_empty() {
+            return Err(anyhow!("Remote {} name cannot be empty", remote_key));
         }
     }
 

@@ -14,10 +14,6 @@ pub struct GeneralConfig {
     pub password_hash: String,  // Argon2 hash for verification
     pub encryption_key: String, // Derived key for AES encryption/decryption
     pub max_retention: u32,
-    pub http_proxy: Option<String>,
-    pub https_proxy: Option<String>,
-    pub socks_proxy: Option<String>,
-    pub no_proxy: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -47,57 +43,17 @@ pub enum Frequency {
     Weekly,
 }
 
+use std::collections::HashMap;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RemoteConfig {
-    pub dropbox: Option<DropboxConfig>,
-    pub onedrive: Option<OneDriveConfig>,
-    pub icloud: Option<ICloudConfig>,
-    pub sftp: Option<SFTPConfig>,
+    pub remotes: HashMap<String, RemoteProvider>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DropboxConfig {
+pub struct RemoteProvider {
+    pub name: String,
     pub enabled: bool,
-    pub app_key: String,
-    pub app_secret: String,
-    pub http_proxy: Option<String>,
-    pub https_proxy: Option<String>,
-    pub socks_proxy: Option<String>,
-    pub no_proxy: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct OneDriveConfig {
-    pub enabled: bool,
-    pub client_id: String,
-    pub client_secret: String,
-    pub http_proxy: Option<String>,
-    pub https_proxy: Option<String>,
-    pub socks_proxy: Option<String>,
-    pub no_proxy: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ICloudConfig {
-    pub enabled: bool,
-    pub apple_id: String,
-    pub client_id: String,
-    pub http_proxy: Option<String>,
-    pub https_proxy: Option<String>,
-    pub socks_proxy: Option<String>,
-    pub no_proxy: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SFTPConfig {
-    pub enabled: bool,
-    pub username: String,
-    pub ipaddr: String,
-    pub port: u16,
-    pub http_proxy: Option<String>,
-    pub https_proxy: Option<String>,
-    pub socks_proxy: Option<String>,
-    pub no_proxy: Option<String>,
 }
 
 impl Default for Config {
@@ -108,10 +64,6 @@ impl Default for Config {
                 password_hash: String::new(),
                 encryption_key: String::new(),
                 max_retention: 10,
-                http_proxy: None,
-                https_proxy: None,
-                socks_proxy: None,
-                no_proxy: Some("localhost,127.0.0.1".to_string()),
             },
             source: SourceConfig {
                 firefox: FirefoxSource {
@@ -126,43 +78,38 @@ impl Default for Config {
                 },
             },
             remote: RemoteConfig {
-                dropbox: Some(DropboxConfig {
-                    enabled: false,
-                    app_key: String::new(),
-                    app_secret: String::new(),
-                    http_proxy: None,
-                    https_proxy: None,
-                    socks_proxy: None,
-                    no_proxy: Some("localhost,127.0.0.1".to_string()),
-                }),
-                onedrive: Some(OneDriveConfig {
-                    enabled: false,
-                    client_id: String::new(),
-                    client_secret: String::new(),
-                    http_proxy: None,
-                    https_proxy: None,
-                    socks_proxy: None,
-                    no_proxy: Some("localhost,127.0.0.1".to_string()),
-                }),
-                icloud: Some(ICloudConfig {
-                    enabled: false,
-                    apple_id: String::new(),
-                    client_id: String::new(),
-                    http_proxy: None,
-                    https_proxy: None,
-                    socks_proxy: None,
-                    no_proxy: Some("localhost,127.0.0.1".to_string()),
-                }),
-                sftp: Some(SFTPConfig {
-                    enabled: false,
-                    username: String::new(),
-                    ipaddr: String::new(),
-                    port: 22,
-                    http_proxy: None,
-                    https_proxy: None,
-                    socks_proxy: None,
-                    no_proxy: Some("localhost,127.0.0.1".to_string()),
-                }),
+                remotes: {
+                    let mut remotes = HashMap::new();
+                    remotes.insert(
+                        "dropbox".to_string(),
+                        RemoteProvider {
+                            name: "dropbox".to_string(),
+                            enabled: false,
+                        },
+                    );
+                    remotes.insert(
+                        "onedrive".to_string(),
+                        RemoteProvider {
+                            name: "onedrive".to_string(),
+                            enabled: false,
+                        },
+                    );
+                    remotes.insert(
+                        "iclouddrive".to_string(),
+                        RemoteProvider {
+                            name: "iclouddrive".to_string(),
+                            enabled: false,
+                        },
+                    );
+                    remotes.insert(
+                        "sftp".to_string(),
+                        RemoteProvider {
+                            name: "sftp".to_string(),
+                            enabled: false,
+                        },
+                    );
+                    remotes
+                },
             },
         }
     }
