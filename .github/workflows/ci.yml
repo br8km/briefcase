@@ -101,39 +101,39 @@ jobs:
         name: ${{ matrix.name }}
         path: ${{ matrix.name }}.*
 
-   release:
-     name: Create Release
-     needs: [test, build]
-     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-     runs-on: ubuntu-latest
+  release:
+    name: Create Release
+    needs: [test, build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
 
-     steps:
-     - name: Download all artifacts
-       uses: actions/download-artifact@v3
-       with:
-         path: artifacts
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: artifacts
 
-     - name: Create release archives
-       run: |
-         ls -la artifacts/
-         mkdir releases
-         for dir in artifacts/*/; do
-           if [ -d "$dir" ]; then
-             echo "Processing $dir"
-             cp -r "$dir"* releases/ 2>/dev/null || true
-           fi
-         done
-         # Add installation scripts
-         cp scripts/install.sh releases/
-         cp scripts/install.ps1 releases/
-         ls -la releases/
+    - name: Create release archives
+      run: |
+        ls -la artifacts/
+        mkdir releases
+        for dir in artifacts/*/; do
+          if [ -d "$dir" ]; then
+            echo "Processing $dir"
+            cp -r "$dir"* releases/ 2>/dev/null || true
+          fi
+        done
+        # Add installation scripts
+        cp scripts/install.sh releases/
+        cp scripts/install.ps1 releases/
+        ls -la releases/
 
-     - name: Create GitHub release
-       uses: softprops/action-gh-release@v1
-       with:
-         files: releases/*
-         generate_release_notes: true
-         draft: false
-         prerelease: false
-       env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create GitHub release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: releases/*
+        generate_release_notes: true
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
