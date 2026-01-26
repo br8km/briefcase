@@ -183,25 +183,20 @@ dir = "/home/user/sensitive-data"
 frequency = "weekly"
 
 [remote.dropbox]
+name = "dropbox"
 enabled = true
-app_key = "your-dropbox-app-key"
-app_secret = "your-dropbox-app-secret"
 
 [remote.onedrive]
+name = "onedrive"
 enabled = false
-client_id = "your-onedrive-client-id"
-client_secret = "your-onedrive-client-secret"
 
-[remote.icloud]
+[remote.iclouddrive]
+name = "iclouddrive"
 enabled = false
-apple_id = "your-apple-id"
-client_id = "your-icloud-client-id"
 
 [remote.sftp]
+name = "sftp"
 enabled = false
-username = "remote-user"
-ipaddr = "remote-server.com"
-port = 22
 ```
 
 ### Advanced Configuration Examples
@@ -209,20 +204,16 @@ port = 22
 #### Multi-Cloud Redundancy
 ```toml
 [remote.dropbox]
+name = "dropbox"
 enabled = true
-app_key = "your-dropbox-key"
-app_secret = "your-dropbox-secret"
 
 [remote.onedrive]
+name = "onedrive"
 enabled = true
-client_id = "your-onedrive-id"
-client_secret = "your-onedrive-secret"
 
 [remote.sftp]
+name = "sftp"
 enabled = true
-username = "backup-user"
-ipaddr = "backup.example.com"
-port = 22
 ```
 
 #### High-Security Configuration
@@ -268,10 +259,12 @@ frequency = "weekly"
 - `frequency`: Backup frequency (`hourly`, `daily`, `weekly`)
 
 #### Remote Providers
-- `dropbox`: Dropbox cloud storage
-- `onedrive`: Microsoft OneDrive
-- `icloud`: Apple iCloud
-- `sftp`: SFTP/SCP server
+- `dropbox`: Dropbox cloud storage (credentials managed by rclone config)
+- `onedrive`: Microsoft OneDrive (credentials managed by rclone config)
+- `iclouddrive`: Apple iCloud (credentials managed by rclone config)
+- `sftp`: SFTP/SCP server (credentials managed by rclone config)
+
+**Note**: Remote provider credentials are stored in rclone's configuration file, not in briefcase.toml. Use `rclone config` to set up cloud provider credentials.
 
 ## 🔧 Troubleshooting
 

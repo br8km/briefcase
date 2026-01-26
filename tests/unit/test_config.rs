@@ -1,7 +1,6 @@
 use briefcase::config::{get_config_path, load_config, save_config, validate_config, Config};
-use briefcase::models::config::{
-    DropboxConfig, Frequency, ICloudConfig, OneDriveConfig, SFTPConfig,
-};
+use briefcase::models::config::{Frequency, RemoteProvider};
+use std::collections::HashMap;
 use std::path::PathBuf;
 use tempfile::tempdir;
 
@@ -15,6 +14,12 @@ mod tests {
         assert_eq!(config.general.max_retention, 10);
         assert!(!config.source.firefox.enabled);
         assert!(!config.source.folder.enabled);
+        // Check that default remotes are configured but disabled
+        assert_eq!(config.remote.remotes.len(), 4);
+        assert!(!config.remote.remotes.get("dropbox").unwrap().enabled);
+        assert!(!config.remote.remotes.get("onedrive").unwrap().enabled);
+        assert!(!config.remote.remotes.get("iclouddrive").unwrap().enabled);
+        assert!(!config.remote.remotes.get("sftp").unwrap().enabled);
     }
 
     #[test]
@@ -55,64 +60,36 @@ mod tests {
     }
 
     #[test]
-    fn test_validate_dropbox_missing_credentials() {
+    fn test_validate_remote_with_empty_name() {
         let mut config = Config::default();
-        config.remote.dropbox = Some(DropboxConfig {
-            enabled: true,
-            app_key: String::new(),
-            app_secret: "secret".to_string(),
-            http_proxy: None,
-            https_proxy: None,
-            socks_proxy: None,
-            no_proxy: None,
-        });
+        config.remote.remotes.insert(
+            "test".to_string(),
+            RemoteProvider {
+                name: "".to_string(),
+                enabled: true,
+            },
+        );
         assert!(validate_config(&config).is_err());
     }
 
     #[test]
-    fn test_validate_onedrive_missing_credentials() {
+    fn test_validate_multiple_enabled_remotes() {
         let mut config = Config::default();
-        config.remote.onedrive = Some(OneDriveConfig {
-            enabled: true,
-            client_id: String::new(),
-            client_secret: "secret".to_string(),
-            http_proxy: None,
-            https_proxy: None,
-            socks_proxy: None,
-            no_proxy: None,
-        });
-        assert!(validate_config(&config).is_err());
-    }
-
-    #[test]
-    fn test_validate_icloud_missing_credentials() {
-        let mut config = Config::default();
-        config.remote.icloud = Some(ICloudConfig {
-            enabled: true,
-            apple_id: String::new(),
-            client_id: "client".to_string(),
-            http_proxy: None,
-            https_proxy: None,
-            socks_proxy: None,
-            no_proxy: None,
-        });
-        assert!(validate_config(&config).is_err());
-    }
-
-    #[test]
-    fn test_validate_sftp_missing_credentials() {
-        let mut config = Config::default();
-        config.remote.sftp = Some(SFTPConfig {
-            enabled: true,
-            username: String::new(),
-            ipaddr: "127.0.0.1".to_string(),
-            port: 22,
-            http_proxy: None,
-            https_proxy: None,
-            socks_proxy: None,
-            no_proxy: None,
-        });
-        assert!(validate_config(&config).is_err());
+        config.remote.remotes.insert(
+            "dropbox".to_string(),
+            RemoteProvider {
+                name: "dropbox".to_string(),
+                enabled: true,
+            },
+        );
+        config.remote.remotes.insert(
+            "onedrive".to_string(),
+            RemoteProvider {
+                name: "onedrive".to_string(),
+                enabled: true,
+            },
+        );
+        assert!(validate_config(&config).is_ok());
     }
 
     #[test]

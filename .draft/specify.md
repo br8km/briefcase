@@ -50,12 +50,6 @@ PasswordKey = ""
 # required
 MaxRetention = 10  # Max=10, Default=10
 
-# optional
-http_proxy = ""
-https_proxy = ""
-socks_proxy = ""
-no_proxy = "localhost, 127.0.0.1"
-
 
 [source.firefox]
 # required
@@ -83,12 +77,6 @@ app_key = ""
 # required
 app_secret = ""
 
-# optional
-http_proxy = ""
-https_proxy = ""
-socks_proxy = ""
-no_proxy = "localhost, 127.0.0.1"
-
 
 [remote.onedrive]
 # required
@@ -98,12 +86,6 @@ client_id = ""
 # required
 client_secret = ""
 
-# optional
-http_proxy = ""
-https_proxy = ""
-socks_proxy = ""
-no_proxy = "localhost, 127.0.0.1"
-
 
 [remote.icloud]
 # required
@@ -111,12 +93,6 @@ enabled = false
 # required
 apple_id = ""
 client_id = ""
-
-# optional
-http_proxy = ""
-https_proxy = ""
-socks_proxy = ""
-no_proxy = "localhost, 127.0.0.1"
 
 
 [remote.sftp]
@@ -127,12 +103,6 @@ enabled = false
 username = ""
 ipaddr = ""
 port = 20270
-
-# optional
-http_proxy = ""
-https_proxy = ""
-socks_proxy = ""
-no_proxy = "localhost, 127.0.0.1"
 
 
 ```

@@ -47,12 +47,6 @@ Example `.config/<appname>/cfg.toml`:
 
 BakingHint = "What is your favorite color?"
 MaxRetention = 10
-
-[proxy]
-
-HTTP_PROXY=
-HTTPS_PROXY=
-NO_PROXY=
 # SOCKS_PROXY=
 
 [source]
