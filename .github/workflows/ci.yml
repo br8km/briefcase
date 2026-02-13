@@ -9,7 +9,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
- jobs:
+jobs:
   test:
     name: Test Suite
     runs-on: ${{ matrix.os }}
@@ -17,22 +17,22 @@ env:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-     - name: Checkout code
-       uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-     - name: Install Rust
-       uses: dtolnay/rust-toolchain@stable
-       with:
-         components: rustfmt, clippy
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt, clippy
 
-- name: Install cargo-outdated
-        run: cargo install cargo-outdated --version 0.13.0
+    - name: Install cargo-outdated
+      run: cargo install cargo-outdated --version 0.13.0
 
-     - name: Cache dependencies
-       uses: Swatinem/rust-cache@v2
+    - name: Cache dependencies
+      uses: Swatinem/rust-cache@v2
 
-     - name: Check formatting
-       run: cargo fmt --all -- --check
+    - name: Check formatting
+      run: cargo fmt --all -- --check
 
     - name: Run clippy
       run: cargo clippy -- -D warnings
@@ -50,23 +50,25 @@ env:
     - name: Check for outdated dependencies
       run: cargo outdated --exit-code 1
 
-     - name: Run benchmarks
-       run: cargo bench
-       if: matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/main'
+    - name: Run benchmarks
+      run: cargo bench
+      if: matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/main'
 
-- name: Generate coverage
-        uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-llvm-cov@0.6.21
-        if: matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/main'
-     - name: Run coverage
-       run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
-       if: matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/main'
-     - name: Upload coverage
-       uses: codecov/codecov-action@v3
-       with:
-         file: lcov.info
-       if: matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/main'
+    - name: Generate coverage
+      uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-llvm-cov@0.6.21
+      if: matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/main'
+
+    - name: Run coverage
+      run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+      if: matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/main'
+
+    - name: Upload coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: lcov.info
+      if: matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/main'
 
   build:
     name: Build and Release
