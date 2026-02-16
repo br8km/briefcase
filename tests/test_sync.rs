@@ -14,11 +14,11 @@ mod tests {
         assert!(true);
     }
 
-    #[test]
-    fn test_sync_service_validate_remotes_no_remotes() {
+    #[tokio::test]
+    async fn test_sync_service_validate_remotes_no_remotes() {
         let config = Config::default();
         let service = SyncService::new(config);
-        assert!(service.validate_remotes().is_ok());
+        assert!(service.validate_remotes().await.is_ok());
     }
 
     #[tokio::test]
@@ -31,7 +31,7 @@ mod tests {
 
         let service = SyncService::new(config.clone());
         // Only run if remotes are configured and connection succeeds
-        if service.validate_remotes().is_ok() {
+        if service.validate_remotes().await.is_ok() {
             // Create a temporary file to sync
             use tempfile::tempdir;
             let temp_dir = tempdir().unwrap();

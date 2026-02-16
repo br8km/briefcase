@@ -32,7 +32,7 @@ mod tests {
 
         // Check sync service can be created
         let sync_service = SyncService::new(config);
-        sync_service.validate_remotes().unwrap();
+        sync_service.validate_remotes().await.unwrap();
 
         // Files should exist
         for file in backup_files {
