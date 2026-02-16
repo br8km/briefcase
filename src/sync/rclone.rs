@@ -1,53 +1,57 @@
 use anyhow::Result;
-use serde_json::{json, Map, Value};
 use std::path::Path;
+use tokio::process::Command;
 
-pub fn sync_to_remote(local_path: &Path, remote_path: &str, dry_run: bool) -> Result<Value> {
-    let mut params = Map::new();
-    params.insert(
-        "srcFs".to_string(),
-        Value::String(format!("local:{}", local_path.display())),
-    );
-    params.insert("dstFs".to_string(), Value::String(remote_path.to_string()));
-    params.insert("_async".to_string(), Value::Bool(false));
-    params.insert("dryRun".to_string(), Value::Bool(dry_run));
+pub async fn sync_to_remote(local_path: &Path, remote_path: &str, dry_run: bool) -> Result<()> {
+    let source = local_path.display().to_string();
+    let mut cmd = Command::new("rclone");
+    cmd.arg("sync");
 
-    let rpc_result = librclone::rpc("sync/sync", serde_json::to_string(&Value::Object(params))?);
-    match rpc_result {
-        Ok(json_str) => Ok(serde_json::from_str(&json_str)?),
-        Err(e) => Err(anyhow::anyhow!("Rclone error: {}", e)),
+    if dry_run {
+        cmd.arg("--dry-run");
+    }
+
+    cmd.arg(&source).arg(remote_path);
+
+    let output = cmd.output().await
+        .map_err(|e| anyhow::anyhow!("Failed to spawn rclone: {}", e))?;
+
+    if output.status.success() {
+        Ok(())
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        Err(anyhow::anyhow!("Rclone sync failed: {}", stderr))
     }
 }
 
-pub fn list_remote(remote_path: &str) -> Result<Value> {
-    let params = json!({
-        "fs": remote_path,
-        "remote": ""
-    });
+pub async fn mkdir_remote(remote_dir: &str) -> Result<()> {
+    let mut cmd = Command::new("rclone");
+    cmd.arg("mkdir")
+        .arg(remote_dir);
 
-    let rpc_result = librclone::rpc("list", serde_json::to_string(&params)?);
-    match rpc_result {
-        Ok(json_str) => Ok(serde_json::from_str(&json_str)?),
-        Err(e) => Err(anyhow::anyhow!("Rclone error: {}", e)),
+    let output = cmd.output().await
+        .map_err(|e| anyhow::anyhow!("Failed to spawn rclone: {}", e))?;
+
+    if output.status.success() {
+        Ok(())
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        Err(anyhow::anyhow!("Rclone mkdir failed: {}", stderr))
     }
 }
 
-pub fn mkdir_remote(remote_dir: &str) -> Result<Value> {
-    let params = json!({
-        "fs": remote_dir,
-        "remote": ""
-    });
+pub async fn test_remote_connection(remote_path: &str) -> Result<bool> {
+    // Test by listing root directory silently
+    let mut cmd = Command::new("rclone");
+    cmd.arg("lsd")
+        .arg("--quiet"); // Suppress output
 
-    let rpc_result = librclone::rpc("mkdir", serde_json::to_string(&params)?);
-    match rpc_result {
-        Ok(json_str) => Ok(serde_json::from_str(&json_str)?),
-        Err(e) => Err(anyhow::anyhow!("Rclone error: {}", e)),
-    }
-}
+    let remote_arg = format!("{}:", remote_path.trim_end_matches(':'));
 
-pub fn test_remote_connection(remote_path: &str) -> Result<bool> {
-    match list_remote(remote_path) {
-        Ok(_) => Ok(true),
-        Err(_) => Ok(false),
-    }
+    let output = cmd.arg(&remote_arg)
+        .output().await
+        .map_err(|e| anyhow::anyhow!("Failed to spawn rclone: {}", e))?;
+
+    // Success means connection and list succeeded
+    Ok(output.status.success())
 }

@@ -31,14 +31,22 @@ impl SyncService {
         remote_base: &str,
         dry_run: bool,
     ) -> Result<()> {
-        let briefcase_dir = format!("{}/briefcase", remote_base.trim_end_matches('/'));
+        // For sftp, create briefcase in 'upload' subfolder due to Chroot Jail
+        let briefcase_dir = if remote_base.starts_with("sftp:") {
+            format!("{}/upload/briefcase", remote_base.trim_end_matches('/'))
+        } else {
+            format!("{}/briefcase", remote_base.trim_end_matches('/'))
+        };
 
         if dry_run {
             info!("Would create briefcase directory: {}", briefcase_dir);
         } else {
-            match rclone::mkdir_remote(&briefcase_dir) {
+            match rclone::mkdir_remote(&briefcase_dir).await {
                 Ok(_) => info!("Ensured briefcase directory exists: {}", briefcase_dir),
-                Err(e) => error!("Failed to create briefcase directory {}: {}", briefcase_dir, e),
+                Err(e) => error!(
+                    "Failed to create briefcase directory {}: {}",
+                    briefcase_dir, e
+                ),
             }
         }
 
@@ -51,7 +59,7 @@ impl SyncService {
 
             info!("Syncing {} to {}", file.path.display(), remote_path);
 
-            match rclone::sync_to_remote(&file.path, &remote_path, dry_run) {
+            match rclone::sync_to_remote(&file.path, &remote_path, dry_run).await {
                 Ok(_) => info!("Successfully synced {}", file.path.display()),
                 Err(e) => error!("Failed to sync {}: {}", file.path.display(), e),
             }
@@ -60,13 +68,16 @@ impl SyncService {
         Ok(())
     }
 
-    pub fn validate_remotes(&self) -> Result<()> {
+    pub async fn validate_remotes(&self) -> Result<()> {
         // Test connections to enabled remotes
         for remote_provider in self.config.remote.remotes.values() {
             if remote_provider.enabled {
                 let remote_path = format!("{}:", remote_provider.name);
-                if !rclone::test_remote_connection(&remote_path)? {
-                    return Err(anyhow::anyhow!("{} connection failed", remote_provider.name));
+                if !rclone::test_remote_connection(&remote_path).await? {
+                    return Err(anyhow::anyhow!(
+                        "{} connection failed",
+                        remote_provider.name
+                    ));
                 }
             }
         }
