@@ -59,7 +59,7 @@ pub async fn run(args: SyncArgs) -> Result<()> {
     let service = SyncService::new(config.clone());
 
     // Validate remotes
-    service.validate_remotes()?;
+    service.validate_remotes().await?;
 
     // Get actual backup files from the data directory
     let data_dir = dirs::data_local_dir()

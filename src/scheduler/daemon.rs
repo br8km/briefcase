@@ -105,7 +105,7 @@ impl Daemon {
         let config = self.config.lock().await.clone();
         let service = SyncService::new(config);
 
-        if service.validate_remotes().is_ok() {
+        if service.validate_remotes().await.is_ok() {
             info!(
                 "Starting automated sync of {} backup files",
                 backup_files.len()

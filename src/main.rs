@@ -1,6 +1,5 @@
 use anyhow::Result;
-use briefcase::cli;
-use briefcase::logging;
+use briefcase::{cli, logging};
 use clap::Parser;
 
 #[tokio::main]

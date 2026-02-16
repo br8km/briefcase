@@ -4,6 +4,8 @@ use anyhow::Result;
 use clap::{Args, Subcommand};
 use std::fs;
 use std::path::PathBuf;
+use nix::unistd::{fork, ForkResult};
+use tokio::runtime::Runtime;
 
 fn get_pid_file() -> PathBuf {
     dirs::runtime_dir()
@@ -81,16 +83,29 @@ pub struct ScheduleArgs {
 #[derive(Subcommand)]
 pub enum ScheduleCommands {
     /// Start the backup daemon
-    Start,
+    Start(StartArgs),
     /// Stop the backup daemon
     Stop,
     /// Show daemon status
     Status,
 }
 
+#[derive(Args)]
+pub struct StartArgs {
+    /// Detach the daemon to run in background
+    #[arg(long)]
+    pub detach: bool,
+}
+
 pub async fn run(args: ScheduleArgs) -> Result<()> {
     match args.command {
-        ScheduleCommands::Start => {
+        ScheduleCommands::Start(start_args) => {
+            // Check if daemon is already running
+            if is_daemon_running() {
+                println!("Daemon is already running. Use 'stop' to stop it first.");
+                return Ok(());
+            }
+
             println!("Starting backup daemon...");
 
             let config_path = config::get_config_path()?;
@@ -98,20 +113,58 @@ pub async fn run(args: ScheduleArgs) -> Result<()> {
 
             let daemon = Daemon::new(config);
 
-            // Create PID file
-            let pid_file = get_pid_file();
-            if let Ok(pid) = std::process::id().to_string().parse::<u32>() {
-                let _ = fs::write(&pid_file, pid.to_string());
+            if start_args.detach {
+                println!("Daemon will run in background");
+                match unsafe { fork() } {
+                    Ok(ForkResult::Parent { .. }) => {
+                        // Parent process exits immediately
+                        return Ok(());
+                    }
+                    Ok(ForkResult::Child) => {
+                        // Child continues as daemon
+                        // Create PID file in child
+                        let pid_file = get_pid_file();
+                        let pid = std::process::id().to_string();
+                        let _ = fs::write(&pid_file, pid);
+
+                        // Spawn a new thread with its own runtime to run the daemon
+                        let child_thread = std::thread::spawn(move || {
+                            let rt = Runtime::new().unwrap();
+                            let result = rt.block_on(async {
+                                daemon.run().await
+                            });
+                            if let Err(e) = result {
+                                eprintln!("Daemon error: {}", e);
+                            }
+                        });
+
+                        // The main thread of the child process can exit
+                        // The daemon runs in the spawned thread
+                        child_thread.join().unwrap();
+
+                        // Clean up PID file on exit (in thread, but for simplicity)
+                        let _ = fs::remove_file(&pid_file);
+                    }
+                    Err(_) => {
+                        return Err(anyhow::anyhow!("Failed to fork daemon process"));
+                    }
+                }
+            } else {
+                println!("Daemon will run in foreground (use --detach to background it)");
+                // Create PID file
+                let pid_file = get_pid_file();
+                if let Ok(pid) = std::process::id().to_string().parse::<u32>() {
+                    let _ = fs::write(&pid_file, pid.to_string());
+                }
+
+                // Run in foreground
+                let result = daemon.run().await;
+
+                // Clean up PID file on exit
+                let _ = fs::remove_file(&pid_file);
+
+                result?;
             }
-
-            // In real implementation, would daemonize the process
-            // For now, just run in foreground
-            let result = daemon.run().await;
-
-            // Clean up PID file on exit
-            let _ = fs::remove_file(&pid_file);
-
-            result?;
         }
         ScheduleCommands::Stop => {
             stop_daemon()?;
