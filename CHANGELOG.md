@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.0.1] - 2026-02-22
+
+### Fixed
+- Daemon not executing scheduled backups - the daemon now properly checks configured frequency (Hourly/Daily/Weekly) and last backup time before running backups
+- Added `last_backup` timestamp tracking to config for proper scheduling
+- Logging function signature warning in clippy
+
+### Technical Details
+- Added `last_backup: Option<DateTime<Utc>>` field to SourceConfig
+- Daemon now uses SchedulerService::is_backup_due() to determine if backup should run
+- Updated config persistence to save last_backup time after each successful backup
+
+
 ## [1.0.0] - 2026-02-16
 
 ### Added

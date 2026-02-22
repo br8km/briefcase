@@ -17,6 +17,7 @@ Represents the application configuration loaded from TOML file.
 - firefox_source: FirefoxSource (enabled, dir, frequency)
 - folder_source: FolderSource (enabled, dir, frequency)
 - remote_configs: Vec<RemoteConfig> (dropbox, onedrive, icloud, sftp)
+- last_backup: Option<DateTime<Utc>> (timestamp of last successful backup)
 
 **Relationships**:
 - Contains multiple RemoteConfig instances
