@@ -1,4 +1,5 @@
 # Custom folders/files
+.PRD
 .specify/scripts
 .specify/templates
 # .github
