@@ -1,9 +1,9 @@
 [package]
 name = "briefcase"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 description = "CLI application for backing up small-size personal sensitive data"
-authors = ["br8km <br8km@nonexist-domain.com>"]
+authors = ["br8km"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/br8km/briefcase"
 keywords = ["backup", "encryption", "cli"]

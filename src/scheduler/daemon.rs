@@ -1,6 +1,7 @@
 use crate::backup::service::BackupService;
 use crate::models::backup_file::BackupFile;
 use crate::models::config::Config;
+use crate::scheduler::service::SchedulerService;
 use base64::{engine::general_purpose, Engine as _};
 use log::{error, info};
 use std::path::PathBuf;
@@ -45,19 +46,27 @@ impl Daemon {
 
     async fn check_and_run_backups(&self) {
         let config: Config = self.config.lock().await.clone();
-        let _now = chrono::Utc::now();
+        let last_backup = config.source.last_backup;
 
-        // Firefox backup
         if config.source.firefox.enabled {
-            if let Err(e) = self.run_backup("firefox").await {
-                error!("Firefox backup failed: {}", e);
+            if SchedulerService::is_backup_due(last_backup, config.source.firefox.frequency) {
+                info!("Firefox backup is due, starting backup");
+                if let Err(e) = self.run_backup("firefox").await {
+                    error!("Firefox backup failed: {}", e);
+                }
+            } else {
+                info!("Firefox backup not due yet");
             }
         }
 
-        // Folder backup
         if config.source.folder.enabled {
-            if let Err(e) = self.run_backup("folder").await {
-                error!("Folder backup failed: {}", e);
+            if SchedulerService::is_backup_due(last_backup, config.source.folder.frequency) {
+                info!("Folder backup is due, starting backup");
+                if let Err(e) = self.run_backup("folder").await {
+                    error!("Folder backup failed: {}", e);
+                }
+            } else {
+                info!("Folder backup not due yet");
             }
         }
     }
@@ -65,7 +74,6 @@ impl Daemon {
     async fn run_backup(&self, source: &str) -> anyhow::Result<()> {
         info!("Running scheduled backup for {}", source);
 
-        // Get encryption_key from config for automated backups
         let config = self.config.lock().await;
         if config.general.encryption_key.is_empty() {
             return Err(anyhow::anyhow!(
@@ -85,10 +93,16 @@ impl Daemon {
             .await?;
         info!("Created {} backup files", backup_files.len());
 
-        // Sync if any remote providers are enabled
-        if self.has_enabled_remotes(&config) {
-            drop(config); // Release lock before calling run_sync
+        let has_remotes = self.has_enabled_remotes(&config);
+        if has_remotes {
+            drop(config);
             self.run_sync(&backup_files).await?;
+        } else {
+            drop(config);
+        }
+
+        if let Err(e) = crate::config::update_last_backup() {
+            error!("Failed to update last_backup time: {}", e);
         }
 
         info!("Scheduled backup completed for {}", source);

@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -20,6 +21,7 @@ pub struct GeneralConfig {
 pub struct SourceConfig {
     pub firefox: FirefoxSource,
     pub folder: FolderSource,
+    pub last_backup: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -76,6 +78,7 @@ impl Default for Config {
                     dir: PathBuf::from("/path/to/sensitive/folder"),
                     frequency: Frequency::Daily,
                 },
+                last_backup: None,
             },
             remote: RemoteConfig {
                 remotes: {
