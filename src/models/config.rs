@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -15,13 +15,14 @@ pub struct GeneralConfig {
     pub password_hash: String,  // Argon2 hash for verification
     pub encryption_key: String, // Derived key for AES encryption/decryption
     pub max_retention: u32,
+    pub text_editor: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SourceConfig {
     pub firefox: FirefoxSource,
     pub folder: FolderSource,
-    pub last_backup: Option<DateTime<Utc>>,
+    pub last_backup: Option<DateTime<Local>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -66,6 +67,7 @@ impl Default for Config {
                 password_hash: String::new(),
                 encryption_key: String::new(),
                 max_retention: 10,
+                text_editor: None,
             },
             source: SourceConfig {
                 firefox: FirefoxSource {

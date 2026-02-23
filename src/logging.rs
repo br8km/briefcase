@@ -17,6 +17,7 @@ pub fn init_logging(log_dir: &Path) -> anyhow::Result<()> {
 
             // Write directly to the file
             if let Ok(mut file) = OpenOptions::new().create(true).append(true).open(&log_path) {
+                let timestamp = Local::now().format("%Y-%m-%dT%H:%M:%S%z");
                 let _ = writeln!(
                     file,
                     "{} {} {}: {}",
@@ -28,6 +29,7 @@ pub fn init_logging(log_dir: &Path) -> anyhow::Result<()> {
             }
 
             // Also write to stderr for console output
+            let timestamp = Local::now().format("%Y-%m-%dT%H:%M:%S%z");
             writeln!(
                 buf,
                 "{} {} {}: {}",
