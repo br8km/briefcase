@@ -21,7 +21,7 @@ mod tests {
         let mut backup = BackupFile::new(path, SourceType::Firefox);
         backup.datetime = chrono::DateTime::parse_from_rfc3339("2023-01-01T12:00:00Z")
             .unwrap()
-            .with_timezone(&chrono::Utc);
+            .with_timezone(&chrono::Local);
         assert_eq!(backup.filename(), "Firefox_2023-01-01_12-00-00.7z");
     }
 
@@ -31,7 +31,7 @@ mod tests {
         let mut backup = BackupFile::new(path, SourceType::Folder);
         backup.datetime = chrono::DateTime::parse_from_rfc3339("2023-01-01T12:00:00Z")
             .unwrap()
-            .with_timezone(&chrono::Utc);
+            .with_timezone(&chrono::Local);
         assert_eq!(backup.filename(), "Folder_2023-01-01_12-00-00.7z");
     }
 }

@@ -1,6 +1,6 @@
 use crate::models::config::Config;
 use anyhow::{anyhow, Result};
-use chrono::Utc;
+use chrono::Local;
 use std::path::Path;
 
 pub fn load_config(path: &Path) -> Result<Config> {
@@ -98,7 +98,7 @@ pub fn get_log_dir() -> Result<std::path::PathBuf> {
 pub fn update_last_backup() -> Result<()> {
     let config_path = get_config_path()?;
     let mut config = load_config(&config_path)?;
-    config.source.last_backup = Some(Utc::now());
+    config.source.last_backup = Some(Local::now());
     save_config(&config, &config_path)?;
     Ok(())
 }

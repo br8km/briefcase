@@ -3,7 +3,7 @@ use crate::backup::{compress, firefox, folder};
 use crate::models::backup_file::{BackupFile, SourceType};
 use crate::models::config::Config;
 use crate::models::temp_dir::TempDir;
-use chrono::Utc;
+use chrono::Local;
 use log::info;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -82,7 +82,7 @@ impl BackupService {
         source_type: SourceType,
         encryption_key: &[u8; 32],
     ) -> anyhow::Result<BackupFile> {
-        let datetime = Utc::now();
+        let datetime = Local::now();
         let filename = format!(
             "{}_{}.7z",
             match source_type {

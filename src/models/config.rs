@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -21,7 +21,7 @@ pub struct GeneralConfig {
 pub struct SourceConfig {
     pub firefox: FirefoxSource,
     pub folder: FolderSource,
-    pub last_backup: Option<DateTime<Utc>>,
+    pub last_backup: Option<DateTime<Local>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
