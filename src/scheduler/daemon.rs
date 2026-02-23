@@ -13,10 +13,11 @@ pub struct Daemon {
     config: Arc<Mutex<Config>>,
     backup_service: BackupService,
     data_dir: PathBuf,
+    force_backup: bool,
 }
 
 impl Daemon {
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: Config, force_backup: bool) -> Self {
         let config = Arc::new(Mutex::new(config.clone()));
 
         let data_dir = dirs::data_local_dir()
@@ -30,6 +31,7 @@ impl Daemon {
             config,
             backup_service,
             data_dir,
+            force_backup,
         }
     }
 
@@ -49,8 +51,10 @@ impl Daemon {
         let config: Config = self.config.lock().await.clone();
         let last_backup = config.source.last_backup;
 
+        let force = self.force_backup;
+
         if config.source.firefox.enabled {
-            if SchedulerService::is_backup_due(last_backup, config.source.firefox.frequency) {
+            if force || SchedulerService::is_backup_due(last_backup, config.source.firefox.frequency) {
                 info!("Firefox backup is due, starting backup");
                 if let Err(e) = self.run_backup("firefox").await {
                     error!("Firefox backup failed: {}", e);
@@ -61,7 +65,7 @@ impl Daemon {
         }
 
         if config.source.folder.enabled {
-            if SchedulerService::is_backup_due(last_backup, config.source.folder.frequency) {
+            if force || SchedulerService::is_backup_due(last_backup, config.source.folder.frequency) {
                 info!("Folder backup is due, starting backup");
                 if let Err(e) = self.run_backup("folder").await {
                     error!("Folder backup failed: {}", e);
@@ -88,18 +92,17 @@ impl Daemon {
         let mut encryption_key = [0u8; 32];
         encryption_key.copy_from_slice(&encryption_key_bytes);
 
+        let has_remotes = config.remote.remotes.values().any(|remote| remote.enabled);
+        drop(config);
+
         let backup_files = self
             .backup_service
             .perform_backup_with_key(&encryption_key)
             .await?;
         info!("Created {} backup files", backup_files.len());
 
-        let has_remotes = self.has_enabled_remotes(&config);
         if has_remotes {
-            drop(config);
             self.run_sync(&backup_files).await?;
-        } else {
-            drop(config);
         }
 
         if let Err(e) = crate::config::update_last_backup() {
@@ -108,10 +111,6 @@ impl Daemon {
 
         info!("Scheduled backup completed for {}", source);
         Ok(())
-    }
-
-    fn has_enabled_remotes(&self, config: &Config) -> bool {
-        config.remote.remotes.values().any(|remote| remote.enabled)
     }
 
     async fn run_sync(&self, backup_files: &[BackupFile]) -> anyhow::Result<()> {

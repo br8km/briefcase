@@ -8,7 +8,7 @@ mod tests {
     #[test]
     fn test_daemon_creation() {
         let config = Config::default();
-        let _daemon = Daemon::new(config);
+        let _daemon = Daemon::new(config, false);
         // Just check creation succeeds
         assert!(true);
     }

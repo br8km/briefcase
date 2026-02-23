@@ -22,10 +22,10 @@ pub async fn run(args: CleanArgs) -> Result<()> {
             log_dir.display()
         );
         println!("\nAre you sure? [y/N]: ");
-        
+
         let mut input = String::new();
         std::io::stdin().read_line(&mut input)?;
-        
+
         if !input.trim().eq_ignore_ascii_case("y") {
             println!("Aborted.");
             return Ok(());
@@ -45,9 +45,7 @@ fn clean_directory(dir: &PathBuf, name: &str) -> Result<()> {
         return Ok(());
     }
 
-    let entries: Vec<_> = std::fs::read_dir(dir)?
-        .filter_map(|e| e.ok())
-        .collect();
+    let entries: Vec<_> = std::fs::read_dir(dir)?.filter_map(|e| e.ok()).collect();
 
     if entries.is_empty() {
         println!("{} directory is already empty", name);
