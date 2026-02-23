@@ -95,6 +95,9 @@ pub struct StartArgs {
     /// Detach the daemon to run in background
     #[arg(long)]
     pub detach: bool,
+    /// Force backup to run immediately, ignoring schedule
+    #[arg(long)]
+    pub force: bool,
 }
 
 pub async fn run(args: ScheduleArgs) -> Result<()> {
@@ -111,7 +114,7 @@ pub async fn run(args: ScheduleArgs) -> Result<()> {
             let config_path = config::get_config_path()?;
             let config = config::load_config(&config_path)?;
 
-            let daemon = Daemon::new(config);
+            let daemon = Daemon::new(config, start_args.force);
 
             if start_args.detach {
                 println!("Daemon will run in background");
@@ -128,7 +131,8 @@ pub async fn run(args: ScheduleArgs) -> Result<()> {
                         let _ = fs::write(&pid_file, pid);
 
                         // Spawn a new thread with its own runtime to run the daemon
-                        let child_thread = std::thread::spawn(move || {
+                        // Don't join - let the thread run detached while the main thread exits
+                        std::thread::spawn(move || {
                             let rt = Runtime::new().unwrap();
                             let result = rt.block_on(async { daemon.run().await });
                             if let Err(e) = result {
@@ -136,12 +140,8 @@ pub async fn run(args: ScheduleArgs) -> Result<()> {
                             }
                         });
 
-                        // The main thread of the child process can exit
-                        // The daemon runs in the spawned thread
-                        child_thread.join().unwrap();
-
-                        // Clean up PID file on exit (in thread, but for simplicity)
-                        let _ = fs::remove_file(&pid_file);
+                        // Exit the main thread immediately - the spawned thread continues running
+                        return Ok(());
                     }
                     Err(_) => {
                         return Err(anyhow::anyhow!("Failed to fork daemon process"));

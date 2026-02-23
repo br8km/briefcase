@@ -26,10 +26,10 @@ pub async fn run(args: UninstallArgs) -> Result<()> {
             log_dir.display()
         );
         println!("\nDo you also want to delete the config file? [y/N]: ");
-        
+
         let mut input = String::new();
         std::io::stdin().read_line(&mut input)?;
-        
+
         if !input.trim().eq_ignore_ascii_case("y") {
             println!("Uninstalled (data, logs, binary). Config file kept.");
             delete_binary()?;
@@ -43,7 +43,12 @@ pub async fn run(args: UninstallArgs) -> Result<()> {
     }
 
     if let Some(config_dir) = config_path.parent() {
-        if config_dir.exists() && config_dir.read_dir().map(|mut d| d.next().is_none()).unwrap_or(true) {
+        if config_dir.exists()
+            && config_dir
+                .read_dir()
+                .map(|mut d| d.next().is_none())
+                .unwrap_or(true)
+        {
             std::fs::remove_dir(config_dir)?;
             println!("Removed config directory: {}", config_dir.display());
         }
@@ -61,9 +66,7 @@ fn clean_directory(dir: &PathBuf, name: &str) -> Result<()> {
         return Ok(());
     }
 
-    let entries: Vec<_> = std::fs::read_dir(dir)?
-        .filter_map(|e| e.ok())
-        .collect();
+    let entries: Vec<_> = std::fs::read_dir(dir)?.filter_map(|e| e.ok()).collect();
 
     if entries.is_empty() {
         println!("{} directory is already empty", name);
@@ -85,20 +88,34 @@ fn clean_directory(dir: &PathBuf, name: &str) -> Result<()> {
 
 fn delete_binary() -> Result<()> {
     let exe_path = std::env::current_exe()?;
-    
+
     println!("Deleting binary: {}", exe_path.display());
 
     #[cfg(target_os = "windows")]
     {
         Command::new("cmd")
-            .args(["/C", "timeout", "/T", "1", "/NOBREAK", "&", "del", "/F", "/Q", &exe_path.display().to_string()])
+            .args([
+                "/C",
+                "timeout",
+                "/T",
+                "1",
+                "/NOBREAK",
+                "&",
+                "del",
+                "/F",
+                "/Q",
+                &exe_path.display().to_string(),
+            ])
             .spawn()?;
     }
 
     #[cfg(not(target_os = "windows"))]
     {
         Command::new("sh")
-            .args(["-c", &format!("sleep 1 && rm -f \"{}\"", exe_path.display())])
+            .args([
+                "-c",
+                &format!("sleep 1 && rm -f \"{}\"", exe_path.display()),
+            ])
             .spawn()?;
     }
 
