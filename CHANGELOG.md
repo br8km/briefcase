@@ -6,6 +6,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.1.0] - 2026-02-23
+
+### Added
+- New `briefcase clean` command to clean data and logs directories
+- New `briefcase uninstall` command to uninstall application (deletes data, logs, binary, optional config)
+- Local timezone support for logs and backup filenames (previously UTC)
+- Implemented retention policy - old backups now automatically deleted based on `max_retention` setting
+
+### Changed
+- Log timestamps now use local timezone instead of UTC (e.g., `2026-02-23T15:23:50+0800`)
+- Backup filenames now use local timezone (e.g., `Firefox_2026-02-23_15-23-50.7z`)
+- Log filenames continue to use local month format (YYYY-MM.log)
+
+### Fixed
+- Fixed uninstall command bug where data/logs were not deleted when user chose to keep config
+- Removed dead code: `clean_temp_files()`, `clean_old_logs()`, `next_backup_time()`, `sync_to_remote()`
+
+### Removed
+- Unused `src/clean.rs` library module (CLI clean command uses different implementation)
+- Unused `next_backup_time()` function from scheduler service
+- Unused `sync_to_remote()` function from rclone module (use `sync_folder_to_remote` instead)
+
+### Technical Details
+- Retention policy enforced after each backup completes
+- Oldest backup files deleted when count exceeds `max_retention` (1-10)
+
+
 ## [1.0.2] - Unreleased
 
 ### Changed
