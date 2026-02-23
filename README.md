@@ -143,6 +143,16 @@ briefcase crypto decrypt --input "backup.7z" --output "./restored/"
 
 **Note:** Crypto operations use configured encryption keys automatically. If no config is available, you'll be prompted to enter your password for recovery.
 
+### Clean Commands
+
+```bash
+# Clean all data and logs (with confirmation)
+briefcase clean
+
+# Clean without confirmation (useful for scripts)
+briefcase clean --force
+```
+
 ## 🔑 Recovery & Cross-Device Access
 
 Briefcase supports recovering encrypted backups even without the original config file:
@@ -401,7 +411,7 @@ briefcase schedule status
 
 ```
 briefcase/
-├── cli/           # Command-line interface (backup, crypto, config, sync, schedule)
+├── cli/           # Command-line interface (backup, crypto, config, sync, schedule, clean)
 ├── crypto/        # AES-256-GCM encryption with Argon2 key derivation
 ├── backup/        # Backup operations with compression and retention
 ├── sync/          # Multi-cloud synchronization via rclone

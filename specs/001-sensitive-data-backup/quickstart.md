@@ -68,6 +68,15 @@ cargo build --release
 # Uses configured password key automatically
 ```
 
+### Clean Data and Logs
+```bash
+# Clean all temporary data and logs (with confirmation)
+./target/release/briefcase clean
+
+# Skip confirmation prompt
+./target/release/briefcase clean --force
+```
+
 ## Configuration Example
 
 Edit `~/.config/briefcase/briefcase.toml`:
