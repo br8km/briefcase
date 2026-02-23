@@ -1,11 +1,11 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BackupFile {
     pub path: PathBuf,
-    pub datetime: DateTime<Utc>,
+    pub datetime: DateTime<Local>,
     pub size: u64,
     pub source_type: SourceType,
     pub hash: String,
@@ -21,7 +21,7 @@ impl BackupFile {
     pub fn new(path: PathBuf, source_type: SourceType) -> Self {
         Self {
             path,
-            datetime: Utc::now(),
+            datetime: Local::now(),
             size: 0,
             source_type,
             hash: String::new(),

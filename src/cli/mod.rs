@@ -1,4 +1,5 @@
 pub mod backup;
+pub mod clean;
 pub mod config;
 pub mod crypto;
 pub mod schedule;
@@ -27,6 +28,8 @@ pub enum Commands {
     Schedule(schedule::ScheduleArgs),
     /// Crypto operations
     Crypto(crypto::CryptoArgs),
+    /// Clean data and logs
+    Clean(clean::CleanArgs),
 }
 
 pub async fn run(cli: Cli) -> Result<()> {
@@ -36,5 +39,6 @@ pub async fn run(cli: Cli) -> Result<()> {
         Commands::Sync(args) => sync::run(args).await,
         Commands::Schedule(args) => schedule::run(args).await,
         Commands::Crypto(args) => crypto::run(args).await,
+        Commands::Clean(args) => clean::run(args).await,
     }
 }
