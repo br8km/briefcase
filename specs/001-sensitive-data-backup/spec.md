@@ -121,6 +121,7 @@ As a user managing my backups, I want detailed logging, cleanup capabilities, an
 - **FR-009**: System MUST sync zipped data to configured remote cloud storage providers (Dropbox, OneDrive, iCloud).
 - **FR-010**: System MUST sync zipped data to remote SFTP servers.
 - **FR-011**: System MUST support dry-run mode for sync operations.
+- **FR-011a**: System MUST sync data folder efficiently using rclone folder sync (single operation per remote) with automatic incremental transfer of only new/modified files.
 - **FR-012**: System MUST provide detailed logging with configurable levels, storing in JSON format.
 - **FR-013**: System MUST rotate logs based on monthly time and 10MB size limits, keeping maximum 3 files, with filenames formatted as `<%Y-%m>.log`.
 - **FR-014**: System MUST delete temporary files after successful sync operations.

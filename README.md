@@ -87,6 +87,8 @@ briefcase backup --dry-run
 
 ```bash
 # Sync backups to all enabled remote providers
+# Automatically syncs all backup files in the data folder using rclone
+# Only new and modified files are transferred for efficiency
 briefcase sync
 
 # Dry run to preview what would be synced
@@ -296,6 +298,21 @@ chmod +r ~/.mozilla/firefox/profile/
    briefcase sync --dry-run
    ```
 3. Check provider-specific setup guides in documentation
+
+#### OneDrive sync fails with "nameAlreadyExists" or "Cannot create an upload session on a folder"
+**Problem**: OneDrive incorrectly identifies `.7z` files as OneNote files, causing sync conflicts.
+
+**Solution**:
+1. Run rclone configuration:
+   ```bash
+   rclone config
+   ```
+2. Select your OneDrive remote
+3. Choose "Edit advanced config"
+4. Set `expose_onenote_files` to `true`
+5. Save and exit
+
+This tells OneDrive to properly handle .7z files instead of treating them as OneNote.
 
 #### Daemon won't start
 **Problem**: Scheduling daemon fails to initialize.

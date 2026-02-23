@@ -12,23 +12,24 @@ use tokio::time::{self, Duration};
 pub struct Daemon {
     config: Arc<Mutex<Config>>,
     backup_service: BackupService,
+    data_dir: PathBuf,
 }
 
 impl Daemon {
     pub fn new(config: Config) -> Self {
         let config = Arc::new(Mutex::new(config.clone()));
 
-        // Use the same data directory as other backup operations
         let data_dir = dirs::data_local_dir()
             .unwrap_or_else(|| PathBuf::from("/tmp"))
             .join("briefcase")
             .join("data");
 
-        let backup_service = BackupService::new(config.clone(), data_dir);
+        let backup_service = BackupService::new(config.clone(), data_dir.clone());
 
         Self {
             config,
             backup_service,
+            data_dir,
         }
     }
 
@@ -124,7 +125,9 @@ impl Daemon {
                 "Starting automated sync of {} backup files",
                 backup_files.len()
             );
-            service.sync_backups(backup_files, false).await?;
+            service
+                .sync_backups(backup_files, &self.data_dir, false)
+                .await?;
             info!("Automated sync completed");
         }
 

@@ -107,6 +107,7 @@ cargo test --test integration
 - **Backup fails**: Check source directories exist and are readable
 - **Sync fails**: Verify remote credentials and network connectivity
 - **Decryption fails**: Ensure correct password and file integrity
+- **OneDrive sync fails with "nameAlreadyExists"**: Run `rclone config`, select OneDrive, choose "Edit advanced config", set `expose_onenote_files` to `true`
 
 ## Logs
 

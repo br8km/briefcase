@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.0.2] - Unreleased
+
+### Changed
+- Improved sync performance by using rclone folder sync instead of per-file sync
+- Sync now syncs at once instead of the entire data folder individual backup files
+
+### Technical Details
+- Replaced per-file rclone sync loop with single folder sync operation
+- rclone now handles incremental sync (only new/modified files) automatically
+- Reduces process spawning overhead and improves bandwidth efficiency
+
+
 ## [1.0.1] - 2026-02-22
 
 ### Fixed

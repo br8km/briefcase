@@ -99,6 +99,9 @@
 - [x] T031 [US2] Implement sync CLI command in src/cli/sync.rs
 - [x] T032 [US2] Add temp file cleanup after successful sync in src/clean.rs
 - [x] T033 [US2] Integrate logging for sync operations
+- [x] T034 [US2] Optimize sync by using folder sync instead of per-file sync
+
+**Note**: T034 replaced per-file rclone sync loop with single folder sync operation. rclone now handles incremental sync automatically, improving performance and reducing bandwidth usage.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

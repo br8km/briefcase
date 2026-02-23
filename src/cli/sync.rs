@@ -69,7 +69,9 @@ pub async fn run(args: SyncArgs) -> Result<()> {
 
     let backup_files = find_backup_files(&data_dir)?;
 
-    service.sync_backups(&backup_files, args.dry_run).await?;
+    service
+        .sync_backups(&backup_files, &data_dir, args.dry_run)
+        .await?;
 
     Ok(())
 }

@@ -41,7 +41,7 @@ mod tests {
             let backup_files = vec![BackupFile::new(temp_file_path.clone(), SourceType::Folder)];
 
             // Perform actual sync (not dry run)
-            let result = service.sync_backups(&backup_files, false).await;
+            let result = service.sync_backups(&backup_files, temp_dir.path(), false).await;
             assert!(
                 result.is_ok(),
                 "Sync should succeed when rclone is configured"

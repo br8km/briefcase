@@ -2,9 +2,9 @@ use crate::config;
 use crate::scheduler::daemon::Daemon;
 use anyhow::Result;
 use clap::{Args, Subcommand};
+use nix::unistd::{fork, ForkResult};
 use std::fs;
 use std::path::PathBuf;
-use nix::unistd::{fork, ForkResult};
 use tokio::runtime::Runtime;
 
 fn get_pid_file() -> PathBuf {
@@ -130,9 +130,7 @@ pub async fn run(args: ScheduleArgs) -> Result<()> {
                         // Spawn a new thread with its own runtime to run the daemon
                         let child_thread = std::thread::spawn(move || {
                             let rt = Runtime::new().unwrap();
-                            let result = rt.block_on(async {
-                                daemon.run().await
-                            });
+                            let result = rt.block_on(async { daemon.run().await });
                             if let Err(e) = result {
                                 eprintln!("Daemon error: {}", e);
                             }

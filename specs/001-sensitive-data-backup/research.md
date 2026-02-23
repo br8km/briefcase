@@ -35,13 +35,18 @@
 
 ## Rclone Integration
 
-**Decision**: Use librclone for embedded integration with async RPC calls and job status polling.
+**Decision**: Use std::process::Command with tokio for rclone invocation, with folder sync (single rclone sync per remote) for optimal performance.
 
-**Rationale**: Tighter performance integration without process spawning, supports async operations for non-blocking sync.
+**Rationale**: 
+- Simpler error handling than librclone RPC
+- Process spawning overhead eliminated by using folder sync instead of per-file sync
+- rclone handles incremental sync (only new/modified files) automatically
+- Better reliability through native CLI rather than RPC
 
 **Alternatives Considered**:
-- RC API: Rejected for requiring separate server process.
-- Command wrapping: Rejected for less reliable error handling.
+- librclone: Rejected for requiring separate server process and complexity
+- Per-file sync: Rejected for higher overhead and multiple process spawns
+- RC API: Rejected for requiring separate server process
 
 ## TOML Configuration
 
