@@ -8,6 +8,8 @@ pub fn init_logging(log_dir: &Path) -> anyhow::Result<()> {
     let log_dir = log_dir.to_path_buf();
     env_logger::Builder::new()
         .format(move |buf, record| {
+            let timestamp = Local::now().format("%Y-%m-%dT%H:%M:%S%z");
+
             // Get current monthly log file
             let current_month = Local::now().format("%Y-%m").to_string();
             let log_filename = format!("{}.log", current_month);

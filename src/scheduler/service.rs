@@ -18,17 +18,4 @@ impl SchedulerService {
             Frequency::Weekly => duration_since_last >= Duration::weeks(1),
         }
     }
-
-    pub fn next_backup_time(
-        last_backup: Option<DateTime<Local>>,
-        frequency: Frequency,
-    ) -> DateTime<Local> {
-        let base = last_backup.unwrap_or_else(Local::now);
-
-        match frequency {
-            Frequency::Hourly => base + Duration::hours(1),
-            Frequency::Daily => base + Duration::days(1),
-            Frequency::Weekly => base + Duration::weeks(1),
-        }
-    }
 }

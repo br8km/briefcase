@@ -77,6 +77,15 @@ cargo build --release
 ./target/release/briefcase clean --force
 ```
 
+### Uninstall Application
+```bash
+# Uninstall (deletes data, logs, binary; prompts for config deletion)
+./target/release/briefcase uninstall
+
+# Uninstall everything including config (no prompts)
+./target/release/briefcase uninstall --all
+```
+
 ## Configuration Example
 
 Edit `~/.config/briefcase/briefcase.toml`:

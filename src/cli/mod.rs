@@ -4,6 +4,7 @@ pub mod config;
 pub mod crypto;
 pub mod schedule;
 pub mod sync;
+pub mod uninstall;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
@@ -30,6 +31,8 @@ pub enum Commands {
     Crypto(crypto::CryptoArgs),
     /// Clean data and logs
     Clean(clean::CleanArgs),
+    /// Uninstall application
+    Uninstall(uninstall::UninstallArgs),
 }
 
 pub async fn run(cli: Cli) -> Result<()> {
@@ -40,5 +43,6 @@ pub async fn run(cli: Cli) -> Result<()> {
         Commands::Schedule(args) => schedule::run(args).await,
         Commands::Crypto(args) => crypto::run(args).await,
         Commands::Clean(args) => clean::run(args).await,
+        Commands::Uninstall(args) => uninstall::run(args).await,
     }
 }
