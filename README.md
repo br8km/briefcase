@@ -149,6 +149,16 @@ briefcase clean
 briefcase clean --force
 ```
 
+### Uninstall Commands
+
+```bash
+# Uninstall application (deletes data, logs, binary; prompts for config)
+briefcase uninstall
+
+# Uninstall with all data including config (no prompts)
+briefcase uninstall --all
+```
+
 ## 🔑 Recovery & Cross-Device Access
 
 Briefcase supports recovering encrypted backups even without the original config file:

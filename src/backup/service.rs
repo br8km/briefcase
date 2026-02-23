@@ -1,10 +1,10 @@
-use crate::backup::{compress, firefox, folder};
+use crate::backup::{compress, firefox, folder, retention};
 
 use crate::models::backup_file::{BackupFile, SourceType};
 use crate::models::config::Config;
 use crate::models::temp_dir::TempDir;
 use chrono::Local;
-use log::info;
+use log::{info, warn};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -71,6 +71,14 @@ impl BackupService {
 
         // Clean up temp directory
         drop(temp_dir);
+
+        // Enforce retention policy
+        let max_retention = config.general.max_retention;
+        drop(config); // Release lock before retention check
+        if let Err(e) = retention::enforce_retention(&self.backup_dir, max_retention) {
+            warn!("Failed to enforce retention policy: {}", e);
+        }
+
         info!("Backup completed successfully");
 
         Ok(backup_files)
