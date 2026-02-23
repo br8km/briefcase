@@ -25,12 +25,14 @@ cargo build --release
 ./target/release/briefcase config init
 # Enter password when prompted
 # Enter password hint
+# text_editor is auto-set to "vi" on Linux/Mac, "notepad" on Windows
 ```
 
 2. Edit configuration if needed:
 ```bash
 ./target/release/briefcase config edit
-# Modify ~/.config/briefcase/briefcase.toml
+# Opens config file in your configured text_editor
+# Or use: ./target/release/briefcase config edit --editor nano
 ```
 
 3. Validate configuration:
@@ -84,6 +86,7 @@ Edit `~/.config/briefcase/briefcase.toml`:
 PasswordHint = "Your hint"
 PasswordKey = "sha256_hash_of_your_password"
 MaxRetention = 10
+TextEditor = "vi"  # or "notepad" on Windows
 
 [source.firefox]
 enabled = true

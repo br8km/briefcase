@@ -1,15 +1,15 @@
 use crate::models::config::Frequency;
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Duration, Local};
 
 pub struct SchedulerService;
 
 impl SchedulerService {
-    pub fn is_backup_due(last_backup: Option<DateTime<Utc>>, frequency: Frequency) -> bool {
+    pub fn is_backup_due(last_backup: Option<DateTime<Local>>, frequency: Frequency) -> bool {
         let Some(last) = last_backup else {
             return true; // Never backed up
         };
 
-        let now = Utc::now();
+        let now = Local::now();
         let duration_since_last = now.signed_duration_since(last);
 
         match frequency {
@@ -20,10 +20,10 @@ impl SchedulerService {
     }
 
     pub fn next_backup_time(
-        last_backup: Option<DateTime<Utc>>,
+        last_backup: Option<DateTime<Local>>,
         frequency: Frequency,
-    ) -> DateTime<Utc> {
-        let base = last_backup.unwrap_or_else(Utc::now);
+    ) -> DateTime<Local> {
+        let base = last_backup.unwrap_or_else(Local::now);
 
         match frequency {
             Frequency::Hourly => base + Duration::hours(1),

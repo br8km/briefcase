@@ -17,7 +17,7 @@ Represents the application configuration loaded from TOML file.
 - firefox_source: FirefoxSource (enabled, dir, frequency)
 - folder_source: FolderSource (enabled, dir, frequency)
 - remote_configs: Vec<RemoteConfig> (dropbox, onedrive, icloud, sftp)
-- last_backup: Option<DateTime<Utc>> (timestamp of last successful backup)
+- last_backup: Option<DateTime<Local>> (timestamp of last successful backup)
 
 **Relationships**:
 - Contains multiple RemoteConfig instances
@@ -36,7 +36,7 @@ Represents an encrypted backup archive.
 
 **Fields**:
 - path: PathBuf (local storage location)
-- datetime: DateTime<Utc> (creation timestamp)
+- datetime: DateTime<Local> (creation timestamp)
 - size: u64 (file size in bytes)
 - source_type: SourceType (Firefox or Folder)
 - hash: String (SHA256 of encrypted content for integrity)
@@ -57,7 +57,7 @@ Represents an encrypted backup archive.
 Represents a structured log record.
 
 **Fields**:
-- timestamp: DateTime<Utc>
+- timestamp: DateTime<Local>
 - level: LogLevel (Error, Warn, Info, Debug, Trace)
 - message: String
 - context: HashMap<String, Value> (operation_id, file_path, etc.)
@@ -79,7 +79,7 @@ Represents temporary working directory for backup staging.
 
 **Fields**:
 - path: PathBuf
-- created_at: DateTime<Utc>
+- created_at: DateTime<Local>
 - size_limit: u64 (max allowed size)
 
 **Relationships**:

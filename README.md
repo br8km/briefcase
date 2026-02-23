@@ -123,8 +123,12 @@ briefcase config verify --password "password"
 # Show current configuration
 briefcase config show
 
-# Edit configuration file
+# Edit configuration file (uses text_editor from config, or --editor flag)
 briefcase config edit
+
+# Edit with a specific editor (overrides config setting)
+briefcase config edit --editor nano
+briefcase config edit -e vim
 ```
 
 ### Crypto Commands
@@ -182,6 +186,7 @@ Briefcase uses TOML configuration files. The default location is `~/.config/brie
 [general]
 max_retention = 10
 password_hint = "What is your favorite color?"
+text_editor = "vi"  # Editor for 'config edit' (default: vi on Linux/Mac, notepad on Windows)
 # password_hash and encryption_key are auto-generated during 'briefcase config init'
 
 [source.firefox]
@@ -264,6 +269,7 @@ frequency = "weekly"
 - `password_hint`: Hint for password recovery (set during config init)
 - `password_hash`: Argon2 hash of your password (auto-generated)
 - `encryption_key`: Derived AES key for encryption (auto-generated)
+- `text_editor`: Text editor to use for `config edit` (default: "vi" on Linux/Mac, "notepad" on Windows)
 
 #### Source Configuration
 - `enabled`: Enable/disable this backup source

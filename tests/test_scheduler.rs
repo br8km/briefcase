@@ -1,6 +1,6 @@
 use briefcase::models::config::Frequency;
 use briefcase::scheduler::service::SchedulerService;
-use chrono::{Duration, Utc};
+use chrono::{Duration, Local};
 
 #[cfg(test)]
 mod tests {
@@ -15,7 +15,7 @@ mod tests {
 
     #[test]
     fn test_is_due_hourly() {
-        let last_backup = Some(Utc::now() - Duration::hours(2));
+        let last_backup = Some(Local::now() - Duration::hours(2));
         assert!(SchedulerService::is_backup_due(
             last_backup,
             Frequency::Hourly
@@ -24,7 +24,7 @@ mod tests {
 
     #[test]
     fn test_is_due_hourly_recent() {
-        let last_backup = Some(Utc::now() - Duration::minutes(30));
+        let last_backup = Some(Local::now() - Duration::minutes(30));
         assert!(!SchedulerService::is_backup_due(
             last_backup,
             Frequency::Hourly
@@ -33,7 +33,7 @@ mod tests {
 
     #[test]
     fn test_is_due_daily() {
-        let last_backup = Some(Utc::now() - Duration::hours(25));
+        let last_backup = Some(Local::now() - Duration::hours(25));
         assert!(SchedulerService::is_backup_due(
             last_backup,
             Frequency::Daily
@@ -42,7 +42,7 @@ mod tests {
 
     #[test]
     fn test_is_due_daily_recent() {
-        let last_backup = Some(Utc::now() - Duration::hours(12));
+        let last_backup = Some(Local::now() - Duration::hours(12));
         assert!(!SchedulerService::is_backup_due(
             last_backup,
             Frequency::Daily
@@ -51,7 +51,7 @@ mod tests {
 
     #[test]
     fn test_is_due_weekly() {
-        let last_backup = Some(Utc::now() - Duration::days(8));
+        let last_backup = Some(Local::now() - Duration::days(8));
         assert!(SchedulerService::is_backup_due(
             last_backup,
             Frequency::Weekly
@@ -60,7 +60,7 @@ mod tests {
 
     #[test]
     fn test_is_due_weekly_recent() {
-        let last_backup = Some(Utc::now() - Duration::days(3));
+        let last_backup = Some(Local::now() - Duration::days(3));
         assert!(!SchedulerService::is_backup_due(
             last_backup,
             Frequency::Weekly
