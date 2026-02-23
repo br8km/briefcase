@@ -4,6 +4,13 @@ use base64::{engine::general_purpose, Engine as _};
 use clap::Args;
 use std::path::PathBuf;
 
+fn get_default_text_editor() -> String {
+    match std::env::consts::OS {
+        "windows" => "notepad".to_string(),
+        _ => "vi".to_string(),
+    }
+}
+
 #[derive(Args)]
 pub struct ConfigArgs {
     /// Action: init, edit, validate, show, verify
@@ -20,6 +27,10 @@ pub struct ConfigArgs {
     /// Custom config file path
     #[arg(short, long)]
     pub file: Option<PathBuf>,
+
+    /// Text editor to use for config edit (overrides config setting)
+    #[arg(short, long)]
+    pub editor: Option<String>,
 }
 
 pub async fn run(args: ConfigArgs) -> Result<()> {
@@ -69,6 +80,7 @@ pub async fn run(args: ConfigArgs) -> Result<()> {
             config.general.password_hash = password_hash;
             config.general.encryption_key = encryption_key;
             config.general.password_hint = hint;
+            config.general.text_editor = Some(get_default_text_editor());
             config::save_config(&config, &config_path)?;
             println!("Config initialized at {:?}", config_path);
         }
@@ -94,8 +106,27 @@ pub async fn run(args: ConfigArgs) -> Result<()> {
             }
         }
         "edit" => {
-            // Open editor
-            println!("Edit config at {:?}", config_path);
+            let editor = if let Some(editor) = args.editor {
+                Some(editor)
+            } else {
+                let config = config::load_config(&config_path)?;
+                config.general.text_editor.clone()
+            };
+
+            if let Some(editor) = editor {
+                if editor.is_empty() {
+                    println!("Edit config at {:?}", config_path);
+                } else {
+                    std::process::Command::new(&editor)
+                        .arg(&config_path)
+                        .spawn()
+                        .map_err(|e| anyhow::anyhow!("Failed to open editor '{}': {}", editor, e))?
+                        .wait()
+                        .map_err(|e| anyhow::anyhow!("Failed to wait for editor: {}", e))?;
+                }
+            } else {
+                println!("Edit config at {:?}", config_path);
+            }
         }
         _ => {
             return Err(anyhow::anyhow!("Invalid action: {}", args.action));
