@@ -1,22 +1,23 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TempDir {
     pub path: PathBuf,
-    pub created_at: DateTime<Utc>,
+    pub created_at: DateTime<Local>,
     pub size_limit: u64,
 }
 
 impl TempDir {
     pub fn new(size_limit: u64) -> std::io::Result<Self> {
-        let temp_path = std::env::temp_dir().join(format!("briefcase_{}", Utc::now().timestamp()));
+        let temp_path =
+            std::env::temp_dir().join(format!("briefcase_{}", Local::now().timestamp()));
         std::fs::create_dir_all(&temp_path)?;
 
         Ok(Self {
             path: temp_path,
-            created_at: Utc::now(),
+            created_at: Local::now(),
             size_limit,
         })
     }

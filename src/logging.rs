@@ -1,4 +1,4 @@
-use chrono::Utc;
+use chrono::Local;
 use log::LevelFilter;
 use std::fs::OpenOptions;
 use std::io::Write;
@@ -9,7 +9,7 @@ pub fn init_logging(log_dir: &Path) -> anyhow::Result<()> {
     env_logger::Builder::new()
         .format(move |buf, record| {
             // Get current monthly log file
-            let current_month = Utc::now().format("%Y-%m").to_string();
+            let current_month = Local::now().format("%Y-%m").to_string();
             let log_filename = format!("{}.log", current_month);
             let log_path = log_dir.join(&log_filename);
 
@@ -18,7 +18,7 @@ pub fn init_logging(log_dir: &Path) -> anyhow::Result<()> {
                 let _ = writeln!(
                     file,
                     "{} {} {}: {}",
-                    buf.timestamp_seconds(),
+                    Local::now().format("%Y-%m-%d %H:%M:%S%.3f"),
                     record.level(),
                     record.target(),
                     record.args()
@@ -29,7 +29,7 @@ pub fn init_logging(log_dir: &Path) -> anyhow::Result<()> {
             writeln!(
                 buf,
                 "{} {} {}: {}",
-                buf.timestamp_seconds(),
+                Local::now().format("%Y-%m-%d %H:%M:%S%.3f"),
                 record.level(),
                 record.target(),
                 record.args()
