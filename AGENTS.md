@@ -27,8 +27,17 @@ tests/
 
 specs/                   # Feature specifications and plans
 .github/workflows/       # CI/CD pipelines
+docs/                    # Project documentation and release notes
 Cargo.toml               # Rust dependencies and metadata
 ```
+
+## Documentation Files
+
+- `README.md` - Project overview and quick start
+- `docs/USAGE.md` - Commands, configuration, troubleshooting, and operations
+- `docs/CONTRIBUTING.md` - Contribution workflow and coding expectations
+- `docs/CHANGELOG.md` - Release history and notable changes
+- `docs/RELEASE.md` - Release checklist and publishing flow
 
 ## Commands
 

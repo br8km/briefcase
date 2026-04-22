@@ -156,9 +156,9 @@ pub fn backup_data(source: &Path, destination: &Path, password: &str) -> Result<
 
 ### User Documentation
 
-- Keep README.md updated with new features
-- Add examples for new functionality
-- Update configuration examples
+- Keep `README.md` updated with new features and onboarding changes
+- Keep `docs/USAGE.md` updated with command, configuration, and troubleshooting details
+- Update configuration examples when behavior changes
 
 ## 🔒 Security
 

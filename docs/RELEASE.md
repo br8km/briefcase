@@ -21,7 +21,7 @@ The CI pipeline builds binaries for multiple platforms:
 Release notes are automatically generated from:
 - Pull request titles and descriptions
 - Commit messages using conventional commit format
-- Changelog entries
+- Changelog entries in `CHANGELOG.md`
 
 ### Manual Release Process
 

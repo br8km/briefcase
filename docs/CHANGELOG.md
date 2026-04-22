@@ -22,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Retention now applies `general.max_retention` independently to each backup source instead of trimming all `.7z` files as one shared pool
 - Scheduled backups now run only the due source, and each source tracks its own `last_backup` timestamp in config
 
-
 ## [1.1.0] - 2026-02-23
 
 ### Added
@@ -49,7 +48,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Retention policy enforced after each backup completes
 - Oldest backup files deleted per source type when count exceeds `max_retention` (1-10)
 
-
 ## [1.0.2] - Unreleased
 
 ### Changed
@@ -60,7 +58,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced per-file rclone sync loop with single folder sync operation
 - rclone now handles incremental sync (only new/modified files) automatically
 - Reduces process spawning overhead and improves bandwidth efficiency
-
 
 ## [1.0.1] - 2026-02-22
 
@@ -73,7 +70,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `last_backup: Option<DateTime<Utc>>` field to SourceConfig
 - Daemon now uses SchedulerService::is_backup_due() to determine if backup should run
 - Updated config persistence to save last_backup time after each successful backup
-
 
 ## [1.0.0] - 2026-02-16
 
@@ -127,7 +123,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI/CD pipeline with GitHub Actions
 - Comprehensive documentation and examples
 
-
 ## Types of changes
 - `Added` for new features
 - `Changed` for changes in existing functionality
@@ -138,6 +133,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Versioning
 We use [SemVer](https://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/br8km/briefcase/tags).
-
 
 *Changelog generated with ❤️ using the specify framework*
