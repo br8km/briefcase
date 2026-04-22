@@ -35,7 +35,14 @@ nix = { version = "0.26", features = ["process"] }
 [dev-dependencies]
 tempfile = "3.0"
 
+[profile.dev]
+incremental = true
+codegen-units = 256 # More units = faster, but less optimized binary
+debug = 0 # 0 or 1 for faster build
+
 [profile.release]
-lto = true          # Enable Link-Time Optimization
-strip = "debuginfo" # Strip debug information
-# You can also use 'strip = "all"' for maximum effect, but this can impact crash reports
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+# panic = "abort"
+strip = true

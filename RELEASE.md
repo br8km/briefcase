@@ -29,19 +29,21 @@ If needed, releases can be created manually:
 
 1. **Update Version**: Update version in `Cargo.toml`
 2. **Update Changelog**: Add new version entry to `CHANGELOG.md`
-3. **Create Tag**: `git tag v1.x.x`
-4. **Push Tag**: `git push origin v1.x.x`
-5. **GitHub Release**: Create release on GitHub with artifacts
+3. **Verify Timestamp Metadata**: Confirm successful `backup` updates `source.last_backup` and successful non-dry-run `sync` updates `source.last_sync`
+4. **Create Tag**: `git tag v1.x.x`
+5. **Push Tag**: `git push origin v1.x.x`
+6. **GitHub Release**: Create release on GitHub with artifacts
 
 ### Pre-release Checklist
 
 - [ ] All tests pass
-- [ ] Code formatted and clippy clean
+- [ ] Code formatted with default `cargo fmt` and clippy clean
 - [ ] Documentation updated
 - [ ] Changelog updated
 - [ ] Version bumped appropriately
 - [ ] Breaking changes documented
 - [ ] CI pipeline passes
+- [ ] Config metadata timestamps verified (`last_backup`, `last_sync`)
 
 ### Versioning
 

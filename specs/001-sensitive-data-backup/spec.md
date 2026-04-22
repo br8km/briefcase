@@ -30,7 +30,8 @@ As a Linux user with sensitive personal data, I want to manually back up my Fire
 
 **Acceptance Scenarios**:
 
-1. **Given** valid config with Firefox and folder sources enabled and paths exist, **When** user runs backup command with correct password, **Then** Firefox data is exported to temp folder, sensitive folder copied, data compressed and encrypted into dated zip files in local data directory.
+1. **Given** valid config with Firefox and folder sources enabled and paths exist, **When** user runs backup command, **Then** Firefox data is exported to temp folder, sensitive folder copied, data compressed and encrypted into dated zip files in local data directory.
+2. **Given** a backup completes successfully, **When** the command exits, **Then** `source.last_backup` is persisted to the config file using a concise local timestamp string.
 2. **Given** backup files exceed max retention limit, **When** new backup completes, **Then** oldest zip files are automatically removed.
 3. **Given** invalid source directory path in config, **When** user runs backup, **Then** error is reported and backup fails gracefully.
 
@@ -51,8 +52,9 @@ As a user with local backups, I want to sync my encrypted backup files to remote
 **Acceptance Scenarios**:
 
 1. **Given** local backups exist and valid remote config (Dropbox/OneDrive/iCloud/SFTP), **When** user runs sync command, **Then** zip files are uploaded to remote storage.
-2. **Given** dry-run option enabled, **When** user runs sync, **Then** sync operations are simulated without actual upload.
-3. **Given** remote config invalid or credentials missing, **When** user runs sync, **Then** warning message displayed and sync skipped.
+2. **Given** sync completes successfully without `--dry-run`, **When** the command exits, **Then** `source.last_sync` is persisted to the config file using a concise local timestamp string.
+3. **Given** dry-run option enabled, **When** user runs sync, **Then** sync operations are simulated without actual upload and `source.last_sync` is not updated.
+4. **Given** remote config invalid or credentials missing, **When** user runs sync, **Then** warning message displayed and sync skipped.
 
 ---
 
@@ -113,20 +115,22 @@ As a user managing my backups, I want detailed logging, cleanup capabilities, an
 - **FR-001**: System MUST initialize default configuration file with required settings and warn if file already exists.
 - **FR-002**: System MUST edit and validate configuration variables, reporting errors for invalid paths or settings.
 - **FR-003**: System MUST accept user password input with password hint for authentication.
-- **FR-004**: System MUST generate PasswordKey from user password using strong hashing algorithm and store in config.
+- **FR-004**: System MUST derive and store encryption credentials from the user's password during config initialization.
 - **FR-005**: System MUST export Firefox bookmarks and saved passwords to temporary folder during backup.
 - **FR-006**: System MUST copy sensitive folder contents to temporary folder during backup.
-- **FR-007**: System MUST compress Firefox and folder data into encrypted zip files using PasswordKey and datetime, storing in data directory.
+- **FR-007**: System MUST compress Firefox and folder data into encrypted zip files using the configured encryption key and datetime, storing them in the data directory.
+- **FR-007a**: System MUST persist `source.last_backup` after each successful backup using a concise local timestamp string.
 - **FR-008**: System MUST remove oldest zip files based on max retention setting.
 - **FR-009**: System MUST sync zipped data to configured remote cloud storage providers (Dropbox, OneDrive, iCloud).
 - **FR-010**: System MUST sync zipped data to remote SFTP servers.
 - **FR-011**: System MUST support dry-run mode for sync operations.
 - **FR-011a**: System MUST sync data folder efficiently using rclone folder sync (single operation per remote) with automatic incremental transfer of only new/modified files.
+- **FR-011b**: System MUST persist `source.last_sync` after each successful non-dry-run sync using a concise local timestamp string.
 - **FR-012**: System MUST provide detailed logging with configurable levels, storing in JSON format.
 - **FR-013**: System MUST rotate logs based on monthly time and 10MB size limits, keeping maximum 3 files, with filenames formatted as `<%Y-%m>.log`.
 - **FR-014**: System MUST delete temporary files after successful sync operations.
 - **FR-015**: System MUST delete log files when requested.
-- **FR-016**: System MUST validate user password against stored PasswordKey for decryption.
+- **FR-016**: System MUST validate user password against the stored password hash for decryption and recovery workflows.
 - **FR-017**: System MUST decrypt and restore original files/folders from encrypted zips.
 - **FR-018**: System MUST run as background daemon service for scheduled backups.
 - **FR-019**: System MUST support different backup frequencies (hourly, daily, weekly) per source.

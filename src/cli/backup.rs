@@ -53,6 +53,9 @@ pub async fn run(args: BackupArgs) -> Result<()> {
 
     let backup_files = service.perform_backup_with_key(&encryption_key).await?;
 
+    let updated_config = config_arc.lock().await.clone();
+    config::save_config(&updated_config, &config_path)?;
+
     for file in backup_files {
         println!("Created backup: {:?}", file.path);
     }

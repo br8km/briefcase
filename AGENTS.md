@@ -1,6 +1,6 @@
 # briefcase Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-01-19
+Auto-generated from all feature plans. Last updated: 2026-04-22
 
 ## Active Technologies
 
@@ -28,7 +28,6 @@ tests/
 specs/                   # Feature specifications and plans
 .github/workflows/       # CI/CD pipelines
 Cargo.toml               # Rust dependencies and metadata
-rustfmt.toml            # Code formatting configuration
 ```
 
 ## Commands
@@ -108,7 +107,7 @@ cargo remove package_name
 ## Code Style Guidelines
 
 ### General Principles
-- Follow Rust's official style guidelines (rustfmt defaults with project-specific overrides)
+- Follow Rust's official style guidelines (stable rustfmt defaults)
 - Prefer explicit over implicit code
 - Use meaningful names that describe intent and purpose
 - Keep functions small and focused on a single responsibility
@@ -345,6 +344,8 @@ pub async fn perform_backup(&self, password: &str) -> Result<Vec<BackupFile>> {
 ## Recent Changes
 
 - 001-sensitive-data-backup: Added Rust 1.75+ + tokio (async runtime), serde (serialization), aes-gcm (encryption), sevenz-rust (compression), rclone (sync), clap (CLI), toml (config), tracing (logging)
+- Config now persists `source.last_backup` after successful backups and `source.last_sync` after successful non-dry-run syncs using concise local timestamp strings
+- Project formatting now uses default stable `cargo fmt` behavior without a repository `rustfmt.toml`
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

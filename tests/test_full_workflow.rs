@@ -23,15 +23,14 @@ mod tests {
         std::fs::write(&places_sqlite, "mock firefox bookmarks").unwrap();
 
         // Perform backup
-        let backup_service = BackupService::new(
-            std::sync::Arc::new(tokio::sync::Mutex::new(config.clone())),
-            backup_dir.clone(),
-        );
+        let config = std::sync::Arc::new(tokio::sync::Mutex::new(config));
+        let backup_service = BackupService::new(config.clone(), backup_dir.clone());
         let backup_files = backup_service.perform_backup("testpassword").await.unwrap();
         assert_eq!(backup_files.len(), 1);
+        assert!(config.lock().await.source.last_backup.is_some());
 
         // Check sync service can be created
-        let sync_service = SyncService::new(config);
+        let sync_service = SyncService::new(config.lock().await.clone());
         sync_service.validate_remotes().await.unwrap();
 
         // Files should exist

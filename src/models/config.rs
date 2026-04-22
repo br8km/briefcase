@@ -1,6 +1,8 @@
-use chrono::{DateTime, Local};
-use serde::{Deserialize, Serialize};
+use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::path::PathBuf;
+
+const LAST_BACKUP_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
@@ -22,7 +24,18 @@ pub struct GeneralConfig {
 pub struct SourceConfig {
     pub firefox: FirefoxSource,
     pub folder: FolderSource,
+    #[serde(
+        default,
+        serialize_with = "serialize_optional_local_datetime",
+        deserialize_with = "deserialize_optional_local_datetime"
+    )]
     pub last_backup: Option<DateTime<Local>>,
+    #[serde(
+        default,
+        serialize_with = "serialize_optional_local_datetime",
+        deserialize_with = "deserialize_optional_local_datetime"
+    )]
+    pub last_sync: Option<DateTime<Local>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -81,6 +94,7 @@ impl Default for Config {
                     frequency: Frequency::Daily,
                 },
                 last_backup: None,
+                last_sync: None,
             },
             remote: RemoteConfig {
                 remotes: {
@@ -118,4 +132,43 @@ impl Default for Config {
             },
         }
     }
+}
+
+fn serialize_optional_local_datetime<S>(
+    value: &Option<DateTime<Local>>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    match value {
+        Some(timestamp) => serializer.serialize_some(
+            &timestamp
+                .naive_local()
+                .format(LAST_BACKUP_FORMAT)
+                .to_string(),
+        ),
+        None => serializer.serialize_none(),
+    }
+}
+
+fn deserialize_optional_local_datetime<'de, D>(
+    deserializer: D,
+) -> Result<Option<DateTime<Local>>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = Option::<String>::deserialize(deserializer)?;
+    let Some(value) = value else {
+        return Ok(None);
+    };
+
+    let naive = NaiveDateTime::parse_from_str(&value, LAST_BACKUP_FORMAT)
+        .map_err(serde::de::Error::custom)?;
+
+    Local
+        .from_local_datetime(&naive)
+        .single()
+        .map(Some)
+        .ok_or_else(|| serde::de::Error::custom("invalid local timestamp"))
 }

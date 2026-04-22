@@ -3,6 +3,7 @@ use crate::models::backup_file::BackupFile;
 use crate::models::backup_file::SourceType;
 use crate::sync::service::SyncService;
 use anyhow::Result;
+use chrono::Local;
 use clap::Args;
 use std::fs;
 use std::path::PathBuf;
@@ -54,7 +55,7 @@ pub struct SyncArgs {
 
 pub async fn run(args: SyncArgs) -> Result<()> {
     let config_path = config::get_config_path()?;
-    let config = config::load_config(&config_path)?;
+    let mut config = config::load_config(&config_path)?;
 
     let service = SyncService::new(config.clone());
 
@@ -72,6 +73,11 @@ pub async fn run(args: SyncArgs) -> Result<()> {
     service
         .sync_backups(&backup_files, &data_dir, args.dry_run)
         .await?;
+
+    if !args.dry_run {
+        config.source.last_sync = Some(Local::now());
+        config::save_config(&config, &config_path)?;
+    }
 
     Ok(())
 }

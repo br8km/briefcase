@@ -83,6 +83,8 @@ briefcase backup --dry-run
 
 **Note:** Passwords are automatically managed through the configuration system. No manual password entry required for backup operations.
 
+Successful `briefcase backup` runs update `source.last_backup` in the config file automatically. Dry runs do not update it.
+
 ### Sync Commands
 
 ```bash
@@ -94,6 +96,8 @@ briefcase sync
 # Dry run to preview what would be synced
 briefcase sync --dry-run
 ```
+
+Successful non-dry-run `briefcase sync` runs update `source.last_sync` in the config file automatically.
 
 ### Schedule Commands
 
@@ -199,6 +203,10 @@ password_hint = "What is your favorite color?"
 text_editor = "vi"  # Editor for 'config edit' (default: vi on Linux/Mac, notepad on Windows)
 # password_hash and encryption_key are auto-generated during 'briefcase config init'
 
+[source]
+last_backup = "2026-04-22 14:37:05" # Auto-managed after successful backups
+last_sync = "2026-04-22 14:42:18"   # Auto-managed after successful syncs
+
 [source.firefox]
 enabled = true
 dir = "/home/user/.mozilla/firefox/profile"
@@ -247,10 +255,9 @@ enabled = true
 ```toml
 [general]
 max_retention = 5  # Limited retention for security
-password_key = "encrypted-key-here"
 password_hint = "recovery-hint"
 
-[source.sensitive_data]
+[source.folder]
 enabled = true
 dir = "/home/user/encrypted-drive"
 frequency = "hourly"

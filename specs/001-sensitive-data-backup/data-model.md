@@ -13,11 +13,12 @@ The application manages backup operations for personal sensitive data, including
 Represents the application configuration loaded from TOML file.
 
 **Fields**:
-- general: GeneralConfig (password_hint, password_key, max_retention)
+- general: GeneralConfig (password_hint, password_hash, encryption_key, max_retention)
 - firefox_source: FirefoxSource (enabled, dir, frequency)
 - folder_source: FolderSource (enabled, dir, frequency)
 - remote_configs: Vec<RemoteConfig> (dropbox, onedrive, icloud, sftp)
-- last_backup: Option<DateTime<Local>> (timestamp of last successful backup)
+- last_backup: Option<DateTime<Local>> (timestamp of last successful backup, persisted as a concise local string in TOML)
+- last_sync: Option<DateTime<Local>> (timestamp of last successful non-dry-run sync, persisted as a concise local string in TOML)
 
 **Relationships**:
 - Contains multiple RemoteConfig instances
@@ -29,7 +30,7 @@ Represents the application configuration loaded from TOML file.
 - Max retention 0-10
 - Password key must be valid hash
 
-**State Transitions**: Immutable during runtime, reloaded on config changes.
+**State Transitions**: Loaded at startup, updated in memory after successful backup/sync operations, then persisted back to the config file.
 
 ### BackupFile
 Represents an encrypted backup archive.
@@ -115,10 +116,12 @@ Represents configuration for remote storage provider.
 
 ## Domain Rules
 
-- All data operations must validate password key before proceeding
+- All backup operations must validate the stored encryption key before proceeding
 - Backup files follow naming pattern: {source}_{datetime}.7z
 - Retention policy enforced by deleting oldest files beyond max_retention
 - Remote sync only occurs after successful local backup
+- `last_backup` updates only after successful backup completion
+- `last_sync` updates only after successful non-dry-run sync completion
 - Firefox backup handles locked profile files gracefully
 - All operations logged with structured data
 - Encryption uses unique keys per backup session

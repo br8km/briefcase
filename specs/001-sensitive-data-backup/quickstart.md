@@ -48,6 +48,7 @@ cargo build --release
 ```bash
 ./target/release/briefcase backup
 # Backs up all enabled sources from configuration
+# Successful runs update source.last_backup in briefcase.toml
 ```
 
 ### Preview Backup (Dry Run)
@@ -60,6 +61,13 @@ cargo build --release
 ```bash
 ./target/release/briefcase sync
 # Syncs recent backups to enabled remote providers
+# Successful non-dry-run runs update source.last_sync in briefcase.toml
+```
+
+### Preview Sync (Dry Run)
+```bash
+./target/release/briefcase sync --dry-run
+# Shows what would be synced without updating source.last_sync
 ```
 
 ### Decrypt and Restore
@@ -92,10 +100,15 @@ Edit `~/.config/briefcase/briefcase.toml`:
 
 ```toml
 [general]
-PasswordHint = "Your hint"
-PasswordKey = "sha256_hash_of_your_password"
-MaxRetention = 10
-TextEditor = "vi"  # or "notepad" on Windows
+password_hint = "Your hint"
+password_hash = "argon2-hash-generated-during-init"
+encryption_key = "base64-encoded-key-generated-during-init"
+max_retention = 10
+text_editor = "vi"  # or "notepad" on Windows
+
+[source]
+last_backup = "2026-04-22 14:37:05"
+last_sync = "2026-04-22 14:42:18"
 
 [source.firefox]
 enabled = true
@@ -108,9 +121,8 @@ dir = "/home/user/sensitive-data"
 frequency = "hourly"
 
 [remote.dropbox]
+name = "dropbox"
 enabled = true
-app_key = "your_app_key"
-app_secret = "your_app_secret"
 ```
 
 ## Testing

@@ -1,6 +1,5 @@
 use crate::models::config::Config;
 use anyhow::{anyhow, Result};
-use chrono::Local;
 use std::path::Path;
 
 pub fn load_config(path: &Path) -> Result<Config> {
@@ -18,6 +17,11 @@ pub fn save_config(config: &Config, path: &Path) -> Result<()> {
     let content = toml::to_string_pretty(config)?;
     std::fs::write(path, content)?;
     Ok(())
+}
+
+pub fn save_current_config(config: &Config) -> Result<()> {
+    let config_path = get_config_path()?;
+    save_config(config, &config_path)
 }
 
 /// Verify a password against the stored password hash
@@ -95,17 +99,10 @@ pub fn get_log_dir() -> Result<std::path::PathBuf> {
     Ok(dir)
 }
 
-pub fn update_last_backup() -> Result<()> {
-    let config_path = get_config_path()?;
-    let mut config = load_config(&config_path)?;
-    config.source.last_backup = Some(Local::now());
-    save_config(&config, &config_path)?;
-    Ok(())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::Local;
     use std::path::PathBuf;
 
     #[test]
@@ -136,5 +133,43 @@ mod tests {
         config.source.firefox.enabled = true;
         config.source.firefox.dir = PathBuf::from("/nonexistent");
         assert!(validate_config(&config).is_err());
+    }
+
+    #[test]
+    fn test_save_and_load_last_backup() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let config_path = temp_dir.path().join("config.toml");
+        let mut config = Config::default();
+        let expected_backup = Local::now();
+        let expected_sync = expected_backup + chrono::Duration::minutes(5);
+        config.source.last_backup = Some(expected_backup);
+        config.source.last_sync = Some(expected_sync);
+
+        save_config(&config, &config_path).unwrap();
+
+        let content = std::fs::read_to_string(&config_path).unwrap();
+        assert!(content.contains("last_backup = \""));
+        assert!(content.contains("last_sync = \""));
+        assert!(!content.contains('T'));
+
+        let loaded = load_config(&config_path).unwrap();
+        assert_eq!(
+            loaded
+                .source
+                .last_backup
+                .unwrap()
+                .format("%Y-%m-%d %H:%M:%S")
+                .to_string(),
+            expected_backup.format("%Y-%m-%d %H:%M:%S").to_string()
+        );
+        assert_eq!(
+            loaded
+                .source
+                .last_sync
+                .unwrap()
+                .format("%Y-%m-%d %H:%M:%S")
+                .to_string(),
+            expected_sync.format("%Y-%m-%d %H:%M:%S").to_string()
+        );
     }
 }

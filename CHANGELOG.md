@@ -5,6 +5,21 @@ All notable changes to Briefcase will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Added `source.last_sync` timestamp tracking to the config file for successful sync operations
+- Added command-level tests covering `briefcase backup` and `briefcase sync` config persistence
+
+### Changed
+- `source.last_backup` and `source.last_sync` now serialize in a concise local timestamp format such as `2026-04-22 14:37:05`
+- Removed `rustfmt.toml` so formatting now follows the stable rustfmt defaults
+
+### Fixed
+- `briefcase backup` now persists `source.last_backup` after each successful manual backup
+- Scheduled backups now update in-memory and persisted `last_backup` state consistently
+- Successful sync operations now persist `source.last_sync`, while `--dry-run` syncs leave timestamps unchanged
+
 
 ## [1.1.0] - 2026-02-23
 

@@ -79,6 +79,10 @@ impl BackupService {
             warn!("Failed to enforce retention policy: {}", e);
         }
 
+        let mut config = self.config.lock().await;
+        config.source.last_backup = Some(Local::now());
+        drop(config);
+
         info!("Backup completed successfully");
 
         Ok(backup_files)

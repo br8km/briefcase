@@ -3,6 +3,7 @@ use crate::models::backup_file::BackupFile;
 use crate::models::config::Config;
 use crate::scheduler::service::SchedulerService;
 use base64::{engine::general_purpose, Engine as _};
+use chrono::Local;
 use log::{error, info};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -54,7 +55,9 @@ impl Daemon {
         let force = self.force_backup;
 
         if config.source.firefox.enabled {
-            if force || SchedulerService::is_backup_due(last_backup, config.source.firefox.frequency) {
+            if force
+                || SchedulerService::is_backup_due(last_backup, config.source.firefox.frequency)
+            {
                 info!("Firefox backup is due, starting backup");
                 if let Err(e) = self.run_backup("firefox").await {
                     error!("Firefox backup failed: {}", e);
@@ -65,7 +68,8 @@ impl Daemon {
         }
 
         if config.source.folder.enabled {
-            if force || SchedulerService::is_backup_due(last_backup, config.source.folder.frequency) {
+            if force || SchedulerService::is_backup_due(last_backup, config.source.folder.frequency)
+            {
                 info!("Folder backup is due, starting backup");
                 if let Err(e) = self.run_backup("folder").await {
                     error!("Folder backup failed: {}", e);
@@ -101,12 +105,13 @@ impl Daemon {
             .await?;
         info!("Created {} backup files", backup_files.len());
 
-        if has_remotes {
-            self.run_sync(&backup_files).await?;
+        let config = self.config.lock().await.clone();
+        if let Err(e) = crate::config::save_current_config(&config) {
+            error!("Failed to persist last_backup time: {}", e);
         }
 
-        if let Err(e) = crate::config::update_last_backup() {
-            error!("Failed to update last_backup time: {}", e);
+        if has_remotes {
+            self.run_sync(&backup_files).await?;
         }
 
         info!("Scheduled backup completed for {}", source);
@@ -127,6 +132,14 @@ impl Daemon {
             service
                 .sync_backups(backup_files, &self.data_dir, false)
                 .await?;
+            let persisted_config = {
+                let mut config = self.config.lock().await;
+                config.source.last_sync = Some(Local::now());
+                config.clone()
+            };
+            if let Err(e) = crate::config::save_current_config(&persisted_config) {
+                error!("Failed to persist last_sync time: {}", e);
+            }
             info!("Automated sync completed");
         }
 
