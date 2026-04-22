@@ -345,6 +345,7 @@ pub async fn perform_backup(&self, password: &str) -> Result<Vec<BackupFile>> {
 
 - 001-sensitive-data-backup: Added Rust 1.75+ + tokio (async runtime), serde (serialization), aes-gcm (encryption), sevenz-rust (compression), rclone (sync), clap (CLI), toml (config), tracing (logging)
 - Config now persists `source.last_backup` after successful backups and `source.last_sync` after successful non-dry-run syncs using concise local timestamp strings
+- Retention now applies `general.max_retention` separately to `Firefox_*.7z` and `Folder_*.7z` archives in the shared data directory
 - Project formatting now uses default stable `cargo fmt` behavior without a repository `rustfmt.toml`
 
 <!-- MANUAL ADDITIONS START -->

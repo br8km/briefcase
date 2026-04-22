@@ -75,8 +75,21 @@ impl BackupService {
         // Enforce retention policy
         let max_retention = config.general.max_retention;
         drop(config); // Release lock before retention check
-        if let Err(e) = retention::enforce_retention(&self.backup_dir, max_retention) {
-            warn!("Failed to enforce retention policy: {}", e);
+        for backup_file in &backup_files {
+            if let Err(e) = retention::enforce_retention(
+                &self.backup_dir,
+                &backup_file.source_type,
+                max_retention,
+            ) {
+                warn!(
+                    "Failed to enforce retention policy for {} backups: {}",
+                    match backup_file.source_type {
+                        SourceType::Firefox => "Firefox",
+                        SourceType::Folder => "Folder",
+                    },
+                    e
+                );
+            }
         }
 
         let mut config = self.config.lock().await;

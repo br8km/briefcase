@@ -84,6 +84,7 @@ briefcase backup --dry-run
 **Note:** Passwords are automatically managed through the configuration system. No manual password entry required for backup operations.
 
 Successful `briefcase backup` runs update `source.last_backup` in the config file automatically. Dry runs do not update it.
+Retention is enforced per source, so `general.max_retention = 10` keeps up to 10 `Firefox_*.7z` files and 10 `Folder_*.7z` files independently.
 
 ### Sync Commands
 
@@ -202,6 +203,7 @@ max_retention = 10
 password_hint = "What is your favorite color?"
 text_editor = "vi"  # Editor for 'config edit' (default: vi on Linux/Mac, notepad on Windows)
 # password_hash and encryption_key are auto-generated during 'briefcase config init'
+# max_retention applies per source type in the shared data directory
 
 [source]
 last_backup = "2026-04-22 14:37:05" # Auto-managed after successful backups
@@ -282,7 +284,7 @@ frequency = "weekly"
 ### Configuration Options
 
 #### General Settings
-- `max_retention`: Maximum number of backup versions to keep (default: 10)
+- `max_retention`: Maximum number of backup versions to keep per source type (default: 10)
 - `password_hint`: Hint for password recovery (set during config init)
 - `password_hash`: Argon2 hash of your password (auto-generated)
 - `encryption_key`: Derived AES key for encryption (auto-generated)

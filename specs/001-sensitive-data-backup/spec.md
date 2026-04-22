@@ -32,7 +32,7 @@ As a Linux user with sensitive personal data, I want to manually back up my Fire
 
 1. **Given** valid config with Firefox and folder sources enabled and paths exist, **When** user runs backup command, **Then** Firefox data is exported to temp folder, sensitive folder copied, data compressed and encrypted into dated zip files in local data directory.
 2. **Given** a backup completes successfully, **When** the command exits, **Then** `source.last_backup` is persisted to the config file using a concise local timestamp string.
-2. **Given** backup files exceed max retention limit, **When** new backup completes, **Then** oldest zip files are automatically removed.
+2. **Given** backup files for a source exceed max retention limit, **When** new backup for that source completes, **Then** the oldest zip files for that same source are automatically removed without affecting other sources.
 3. **Given** invalid source directory path in config, **When** user runs backup, **Then** error is reported and backup fails gracefully.
 
 **Performance Targets**: Backup must complete within 5 minutes for up to 32MB of data.
@@ -120,7 +120,7 @@ As a user managing my backups, I want detailed logging, cleanup capabilities, an
 - **FR-006**: System MUST copy sensitive folder contents to temporary folder during backup.
 - **FR-007**: System MUST compress Firefox and folder data into encrypted zip files using the configured encryption key and datetime, storing them in the data directory.
 - **FR-007a**: System MUST persist `source.last_backup` after each successful backup using a concise local timestamp string.
-- **FR-008**: System MUST remove oldest zip files based on max retention setting.
+- **FR-008**: System MUST remove oldest zip files per source type based on the max retention setting.
 - **FR-009**: System MUST sync zipped data to configured remote cloud storage providers (Dropbox, OneDrive, iCloud).
 - **FR-010**: System MUST sync zipped data to remote SFTP servers.
 - **FR-011**: System MUST support dry-run mode for sync operations.
@@ -134,7 +134,7 @@ As a user managing my backups, I want detailed logging, cleanup capabilities, an
 - **FR-017**: System MUST decrypt and restore original files/folders from encrypted zips.
 - **FR-018**: System MUST run as background daemon service for scheduled backups.
 - **FR-019**: System MUST support different backup frequencies (hourly, daily, weekly) per source.
-- **FR-020**: System MUST enforce retention policy with configurable max retention (0-10).
+- **FR-020**: System MUST enforce retention policy with configurable max retention (1-10) for each enabled source independently.
 
 ### Key Entities *(include if feature involves data)*
 

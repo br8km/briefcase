@@ -27,7 +27,7 @@ Represents the application configuration loaded from TOML file.
 **Validation Rules**:
 - Paths must exist and be readable
 - Frequencies must be 'hourly', 'daily', 'weekly'
-- Max retention 0-10
+- Max retention 1-10
 - Password key must be valid hash
 
 **State Transitions**: Loaded at startup, updated in memory after successful backup/sync operations, then persisted back to the config file.
@@ -118,7 +118,7 @@ Represents configuration for remote storage provider.
 
 - All backup operations must validate the stored encryption key before proceeding
 - Backup files follow naming pattern: {source}_{datetime}.7z
-- Retention policy enforced by deleting oldest files beyond max_retention
+- Retention policy enforced per source type by deleting the oldest files beyond max_retention for that source
 - Remote sync only occurs after successful local backup
 - `last_backup` updates only after successful backup completion
 - `last_sync` updates only after successful non-dry-run sync completion

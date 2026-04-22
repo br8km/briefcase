@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `briefcase backup` now persists `source.last_backup` after each successful manual backup
 - Scheduled backups now update in-memory and persisted `last_backup` state consistently
 - Successful sync operations now persist `source.last_sync`, while `--dry-run` syncs leave timestamps unchanged
+- Retention now applies `general.max_retention` independently to each backup source instead of trimming all `.7z` files as one shared pool
 
 
 ## [1.1.0] - 2026-02-23
@@ -45,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Technical Details
 - Retention policy enforced after each backup completes
-- Oldest backup files deleted when count exceeds `max_retention` (1-10)
+- Oldest backup files deleted per source type when count exceeds `max_retention` (1-10)
 
 
 ## [1.0.2] - Unreleased

@@ -105,6 +105,7 @@ password_hash = "argon2-hash-generated-during-init"
 encryption_key = "base64-encoded-key-generated-during-init"
 max_retention = 10
 text_editor = "vi"  # or "notepad" on Windows
+# keeps up to 10 Firefox archives and 10 Folder archives independently
 
 [source]
 last_backup = "2026-04-22 14:37:05"
