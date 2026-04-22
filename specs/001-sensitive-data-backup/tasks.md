@@ -168,6 +168,7 @@
 - [x] T056 Final integration testing across all user stories
 - [x] T057 Update README with build and usage instructions
 - [x] T058 Fix retention counting so `max_retention` applies per source in `src/backup/retention.rs` and document the behavior
+- [x] T059 Track `last_backup` per source and make scheduled runs execute only the due source
 
 ---
 

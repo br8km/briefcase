@@ -83,7 +83,7 @@ briefcase backup --dry-run
 
 **Note:** Passwords are automatically managed through the configuration system. No manual password entry required for backup operations.
 
-Successful `briefcase backup` runs update `source.last_backup` in the config file automatically. Dry runs do not update it.
+Successful `briefcase backup` runs update `source.firefox.last_backup` and `source.folder.last_backup` for the sources that actually completed. Dry runs do not update them.
 Retention is enforced per source, so `general.max_retention = 10` keeps up to 10 `Firefox_*.7z` files and 10 `Folder_*.7z` files independently.
 
 ### Sync Commands
@@ -112,6 +112,8 @@ briefcase schedule stop
 # Check daemon status
 briefcase schedule status
 ```
+
+Scheduled runs evaluate each source independently and only back up the source whose frequency is due.
 
 ### Configuration Commands
 
@@ -206,18 +208,19 @@ text_editor = "vi"  # Editor for 'config edit' (default: vi on Linux/Mac, notepa
 # max_retention applies per source type in the shared data directory
 
 [source]
-last_backup = "2026-04-22 14:37:05" # Auto-managed after successful backups
 last_sync = "2026-04-22 14:42:18"   # Auto-managed after successful syncs
 
 [source.firefox]
 enabled = true
 dir = "/home/user/.mozilla/firefox/profile"
 frequency = "daily"
+last_backup = "2026-04-22 14:37:05" # Auto-managed after successful Firefox backups
 
 [source.folder]
 enabled = true
 dir = "/home/user/sensitive-data"
 frequency = "weekly"
+last_backup = "2026-04-20 09:15:00" # Auto-managed after successful Folder backups
 
 [remote.dropbox]
 name = "dropbox"
@@ -294,6 +297,7 @@ frequency = "weekly"
 - `enabled`: Enable/disable this backup source
 - `dir`: Path to the data directory
 - `frequency`: Backup frequency (`hourly`, `daily`, `weekly`)
+- `last_backup`: Last successful backup time for that source
 
 #### Remote Providers
 - `dropbox`: Dropbox cloud storage (credentials managed by rclone config)

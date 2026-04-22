@@ -26,7 +26,7 @@ pub struct SourceConfig {
     pub folder: FolderSource,
     #[serde(
         default,
-        serialize_with = "serialize_optional_local_datetime",
+        skip_serializing,
         deserialize_with = "deserialize_optional_local_datetime"
     )]
     pub last_backup: Option<DateTime<Local>>,
@@ -43,6 +43,12 @@ pub struct FirefoxSource {
     pub enabled: bool,
     pub dir: PathBuf,
     pub frequency: Frequency,
+    #[serde(
+        default,
+        serialize_with = "serialize_optional_local_datetime",
+        deserialize_with = "deserialize_optional_local_datetime"
+    )]
+    pub last_backup: Option<DateTime<Local>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -50,6 +56,12 @@ pub struct FolderSource {
     pub enabled: bool,
     pub dir: PathBuf,
     pub frequency: Frequency,
+    #[serde(
+        default,
+        serialize_with = "serialize_optional_local_datetime",
+        deserialize_with = "deserialize_optional_local_datetime"
+    )]
+    pub last_backup: Option<DateTime<Local>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -87,11 +99,13 @@ impl Default for Config {
                     enabled: false,
                     dir: PathBuf::from("/path/to/firefox/profile"),
                     frequency: Frequency::Daily,
+                    last_backup: None,
                 },
                 folder: FolderSource {
                     enabled: false,
                     dir: PathBuf::from("/path/to/sensitive/folder"),
                     frequency: Frequency::Daily,
+                    last_backup: None,
                 },
                 last_backup: None,
                 last_sync: None,

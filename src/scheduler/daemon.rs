@@ -1,5 +1,5 @@
 use crate::backup::service::BackupService;
-use crate::models::backup_file::BackupFile;
+use crate::models::backup_file::{BackupFile, SourceType};
 use crate::models::config::Config;
 use crate::scheduler::service::SchedulerService;
 use base64::{engine::general_purpose, Engine as _};
@@ -25,6 +25,7 @@ impl Daemon {
             .unwrap_or_else(|| PathBuf::from("/tmp"))
             .join("briefcase")
             .join("data");
+        let _ = std::fs::create_dir_all(&data_dir);
 
         let backup_service = BackupService::new(config.clone(), data_dir.clone());
 
@@ -50,16 +51,17 @@ impl Daemon {
 
     async fn check_and_run_backups(&self) {
         let config: Config = self.config.lock().await.clone();
-        let last_backup = config.source.last_backup;
+        let legacy_last_backup = config.source.last_backup;
 
         let force = self.force_backup;
 
         if config.source.firefox.enabled {
+            let last_backup = config.source.firefox.last_backup.or(legacy_last_backup);
             if force
                 || SchedulerService::is_backup_due(last_backup, config.source.firefox.frequency)
             {
                 info!("Firefox backup is due, starting backup");
-                if let Err(e) = self.run_backup("firefox").await {
+                if let Err(e) = self.run_backup(SourceType::Firefox).await {
                     error!("Firefox backup failed: {}", e);
                 }
             } else {
@@ -68,10 +70,11 @@ impl Daemon {
         }
 
         if config.source.folder.enabled {
+            let last_backup = config.source.folder.last_backup.or(legacy_last_backup);
             if force || SchedulerService::is_backup_due(last_backup, config.source.folder.frequency)
             {
                 info!("Folder backup is due, starting backup");
-                if let Err(e) = self.run_backup("folder").await {
+                if let Err(e) = self.run_backup(SourceType::Folder).await {
                     error!("Folder backup failed: {}", e);
                 }
             } else {
@@ -80,8 +83,8 @@ impl Daemon {
         }
     }
 
-    async fn run_backup(&self, source: &str) -> anyhow::Result<()> {
-        info!("Running scheduled backup for {}", source);
+    async fn run_backup(&self, source_type: SourceType) -> anyhow::Result<()> {
+        info!("Running scheduled backup for {}", source_name(source_type));
 
         let config = self.config.lock().await;
         if config.general.encryption_key.is_empty() {
@@ -101,20 +104,27 @@ impl Daemon {
 
         let backup_files = self
             .backup_service
-            .perform_backup_with_key(&encryption_key)
+            .perform_source_backup_with_key(source_type, &encryption_key)
             .await?;
         info!("Created {} backup files", backup_files.len());
 
         let config = self.config.lock().await.clone();
         if let Err(e) = crate::config::save_current_config(&config) {
-            error!("Failed to persist last_backup time: {}", e);
+            error!(
+                "Failed to persist {} last_backup time: {}",
+                source_name(source_type),
+                e
+            );
         }
 
         if has_remotes {
             self.run_sync(&backup_files).await?;
         }
 
-        info!("Scheduled backup completed for {}", source);
+        info!(
+            "Scheduled backup completed for {}",
+            source_name(source_type)
+        );
         Ok(())
     }
 
@@ -144,5 +154,103 @@ impl Daemon {
         }
 
         Ok(())
+    }
+}
+
+fn source_name(source_type: SourceType) -> &'static str {
+    match source_type {
+        SourceType::Firefox => "firefox",
+        SourceType::Folder => "folder",
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config;
+    use base64::engine::general_purpose;
+    use chrono::{Duration as ChronoDuration, Local};
+    use std::sync::{Mutex as StdMutex, OnceLock};
+
+    fn env_lock() -> &'static StdMutex<()> {
+        static LOCK: OnceLock<StdMutex<()>> = OnceLock::new();
+        LOCK.get_or_init(|| StdMutex::new(()))
+    }
+
+    fn configure_test_env(base_dir: &std::path::Path) {
+        std::env::set_var("XDG_CONFIG_HOME", base_dir.join("config-home"));
+        std::env::set_var("XDG_DATA_HOME", base_dir.join("data-home"));
+    }
+
+    #[tokio::test]
+    async fn test_check_and_run_backups_only_runs_due_source() {
+        let _guard = env_lock().lock().unwrap();
+        let temp_dir = tempfile::tempdir().unwrap();
+        configure_test_env(temp_dir.path());
+
+        let firefox_dir = temp_dir.path().join("firefox_profile");
+        std::fs::create_dir_all(&firefox_dir).unwrap();
+        std::fs::write(firefox_dir.join("places.sqlite"), "mock firefox data").unwrap();
+
+        let folder_dir = temp_dir.path().join("sensitive_data");
+        std::fs::create_dir_all(&folder_dir).unwrap();
+        std::fs::write(folder_dir.join("secret.txt"), "sensitive information").unwrap();
+
+        let mut config = Config::default();
+        config.general.encryption_key = general_purpose::STANDARD.encode([7u8; 32]);
+        config.source.firefox.enabled = true;
+        config.source.firefox.dir = firefox_dir;
+        config.source.firefox.frequency = crate::models::config::Frequency::Hourly;
+        let initial_firefox_backup = Local::now() - ChronoDuration::hours(2);
+        config.source.firefox.last_backup = Some(initial_firefox_backup);
+        config.source.folder.enabled = true;
+        config.source.folder.dir = folder_dir;
+        config.source.folder.frequency = crate::models::config::Frequency::Daily;
+        let initial_folder_backup = Local::now() - ChronoDuration::hours(1);
+        config.source.folder.last_backup = Some(initial_folder_backup);
+
+        let config_path = config::get_config_path().unwrap();
+        config::save_config(&config, &config_path).unwrap();
+
+        let daemon = Daemon::new(config, false);
+        daemon.check_and_run_backups().await;
+
+        let updated = daemon.config.lock().await.clone();
+        assert!(updated.source.firefox.last_backup.is_some());
+        assert!(updated.source.folder.last_backup.is_some());
+        assert!(updated.source.firefox.last_backup.unwrap() > initial_firefox_backup);
+        assert_eq!(
+            updated.source.folder.last_backup.unwrap(),
+            initial_folder_backup
+        );
+
+        let data_dir = temp_dir
+            .path()
+            .join("data-home")
+            .join("briefcase")
+            .join("data");
+        let firefox_count = std::fs::read_dir(&data_dir)
+            .unwrap()
+            .filter_map(|entry| entry.ok())
+            .filter(|entry| {
+                entry
+                    .file_name()
+                    .to_str()
+                    .is_some_and(|name| name.starts_with("Firefox_") && name.ends_with(".7z"))
+            })
+            .count();
+        let folder_count = std::fs::read_dir(&data_dir)
+            .unwrap()
+            .filter_map(|entry| entry.ok())
+            .filter(|entry| {
+                entry
+                    .file_name()
+                    .to_str()
+                    .is_some_and(|name| name.starts_with("Folder_") && name.ends_with(".7z"))
+            })
+            .count();
+
+        assert_eq!(firefox_count, 1);
+        assert_eq!(folder_count, 0);
     }
 }

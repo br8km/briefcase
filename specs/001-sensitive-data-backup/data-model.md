@@ -14,10 +14,9 @@ Represents the application configuration loaded from TOML file.
 
 **Fields**:
 - general: GeneralConfig (password_hint, password_hash, encryption_key, max_retention)
-- firefox_source: FirefoxSource (enabled, dir, frequency)
-- folder_source: FolderSource (enabled, dir, frequency)
+- firefox_source: FirefoxSource (enabled, dir, frequency, last_backup)
+- folder_source: FolderSource (enabled, dir, frequency, last_backup)
 - remote_configs: Vec<RemoteConfig> (dropbox, onedrive, icloud, sftp)
-- last_backup: Option<DateTime<Local>> (timestamp of last successful backup, persisted as a concise local string in TOML)
 - last_sync: Option<DateTime<Local>> (timestamp of last successful non-dry-run sync, persisted as a concise local string in TOML)
 
 **Relationships**:
@@ -120,7 +119,7 @@ Represents configuration for remote storage provider.
 - Backup files follow naming pattern: {source}_{datetime}.7z
 - Retention policy enforced per source type by deleting the oldest files beyond max_retention for that source
 - Remote sync only occurs after successful local backup
-- `last_backup` updates only after successful backup completion
+- Each source `last_backup` updates only after that source completes successfully
 - `last_sync` updates only after successful non-dry-run sync completion
 - Firefox backup handles locked profile files gracefully
 - All operations logged with structured data

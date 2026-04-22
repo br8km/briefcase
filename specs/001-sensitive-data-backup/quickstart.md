@@ -48,7 +48,7 @@ cargo build --release
 ```bash
 ./target/release/briefcase backup
 # Backs up all enabled sources from configuration
-# Successful runs update source.last_backup in briefcase.toml
+# Successful runs update source.firefox.last_backup and source.folder.last_backup in briefcase.toml
 ```
 
 ### Preview Backup (Dry Run)
@@ -108,18 +108,19 @@ text_editor = "vi"  # or "notepad" on Windows
 # keeps up to 10 Firefox archives and 10 Folder archives independently
 
 [source]
-last_backup = "2026-04-22 14:37:05"
 last_sync = "2026-04-22 14:42:18"
 
 [source.firefox]
 enabled = true
 dir = "/home/user/.mozilla/firefox/profile"
 frequency = "daily"
+last_backup = "2026-04-22 14:37:05"
 
 [source.folder]
 enabled = true
 dir = "/home/user/sensitive-data"
 frequency = "hourly"
+last_backup = "2026-04-22 11:00:00"
 
 [remote.dropbox]
 name = "dropbox"

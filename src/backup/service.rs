@@ -36,41 +36,23 @@ impl BackupService {
     ) -> anyhow::Result<Vec<BackupFile>> {
         info!("Starting backup process");
         let mut backup_files = Vec::new();
-        let temp_dir = TempDir::new(32 * 1024 * 1024)?; // 32MB limit
         let config = self.config.lock().await;
 
         // Firefox backup
         if config.source.firefox.enabled {
-            info!("Backing up Firefox data");
-            firefox::export_firefox_data(&config.source.firefox.dir, &temp_dir.path).await?;
-
-            // Check size before compression
-            if !temp_dir.is_within_limit()? {
-                return Err(anyhow::anyhow!(
-                    "Firefox backup data exceeds size limit (32MB). Current size: {} bytes",
-                    temp_dir.size()?
-                ));
-            }
-
             let backup_file = self
-                .create_backup_file_with_key(&temp_dir.path, SourceType::Firefox, encryption_key)
+                .backup_source_with_key(SourceType::Firefox, encryption_key, &config)
                 .await?;
             backup_files.push(backup_file);
         }
 
         // Folder backup
         if config.source.folder.enabled {
-            info!("Backing up sensitive folder");
-            folder::copy_sensitive_folder(&config.source.folder.dir, &temp_dir.path).await?;
-
             let backup_file = self
-                .create_backup_file_with_key(&temp_dir.path, SourceType::Folder, encryption_key)
+                .backup_source_with_key(SourceType::Folder, encryption_key, &config)
                 .await?;
             backup_files.push(backup_file);
         }
-
-        // Clean up temp directory
-        drop(temp_dir);
 
         // Enforce retention policy
         let max_retention = config.general.max_retention;
@@ -93,12 +75,87 @@ impl BackupService {
         }
 
         let mut config = self.config.lock().await;
-        config.source.last_backup = Some(Local::now());
+        for backup_file in &backup_files {
+            match backup_file.source_type {
+                SourceType::Firefox => {
+                    config.source.firefox.last_backup = Some(backup_file.datetime)
+                }
+                SourceType::Folder => config.source.folder.last_backup = Some(backup_file.datetime),
+            }
+        }
         drop(config);
 
         info!("Backup completed successfully");
 
         Ok(backup_files)
+    }
+
+    pub async fn perform_source_backup_with_key(
+        &self,
+        source_type: SourceType,
+        encryption_key: &[u8; 32],
+    ) -> anyhow::Result<Vec<BackupFile>> {
+        info!("Starting backup process for {:?}", source_type);
+        let config = self.config.lock().await;
+        let backup_file = self
+            .backup_source_with_key(source_type, encryption_key, &config)
+            .await?;
+        let max_retention = config.general.max_retention;
+        drop(config);
+
+        if let Err(e) =
+            retention::enforce_retention(&self.backup_dir, &backup_file.source_type, max_retention)
+        {
+            warn!(
+                "Failed to enforce retention policy for {} backups: {}",
+                match backup_file.source_type {
+                    SourceType::Firefox => "Firefox",
+                    SourceType::Folder => "Folder",
+                },
+                e
+            );
+        }
+
+        let mut config = self.config.lock().await;
+        match backup_file.source_type {
+            SourceType::Firefox => config.source.firefox.last_backup = Some(backup_file.datetime),
+            SourceType::Folder => config.source.folder.last_backup = Some(backup_file.datetime),
+        }
+        drop(config);
+
+        info!("Backup completed successfully");
+
+        Ok(vec![backup_file])
+    }
+
+    async fn backup_source_with_key(
+        &self,
+        source_type: SourceType,
+        encryption_key: &[u8; 32],
+        config: &Config,
+    ) -> anyhow::Result<BackupFile> {
+        let temp_dir = TempDir::new(32 * 1024 * 1024)?;
+
+        match source_type {
+            SourceType::Firefox => {
+                info!("Backing up Firefox data");
+                firefox::export_firefox_data(&config.source.firefox.dir, &temp_dir.path).await?;
+
+                if !temp_dir.is_within_limit()? {
+                    return Err(anyhow::anyhow!(
+                        "Firefox backup data exceeds size limit (32MB). Current size: {} bytes",
+                        temp_dir.size()?
+                    ));
+                }
+            }
+            SourceType::Folder => {
+                info!("Backing up sensitive folder");
+                folder::copy_sensitive_folder(&config.source.folder.dir, &temp_dir.path).await?;
+            }
+        }
+
+        self.create_backup_file_with_key(&temp_dir.path, source_type, encryption_key)
+            .await
     }
 
     async fn create_backup_file_with_key(

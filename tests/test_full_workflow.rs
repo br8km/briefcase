@@ -27,7 +27,7 @@ mod tests {
         let backup_service = BackupService::new(config.clone(), backup_dir.clone());
         let backup_files = backup_service.perform_backup("testpassword").await.unwrap();
         assert_eq!(backup_files.len(), 1);
-        assert!(config.lock().await.source.last_backup.is_some());
+        assert!(config.lock().await.source.firefox.last_backup.is_some());
 
         // Check sync service can be created
         let sync_service = SyncService::new(config.lock().await.clone());

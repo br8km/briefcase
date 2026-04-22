@@ -12,14 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added command-level tests covering `briefcase backup` and `briefcase sync` config persistence
 
 ### Changed
-- `source.last_backup` and `source.last_sync` now serialize in a concise local timestamp format such as `2026-04-22 14:37:05`
+- `source.<name>.last_backup` and `source.last_sync` now serialize in a concise local timestamp format such as `2026-04-22 14:37:05`
 - Removed `rustfmt.toml` so formatting now follows the stable rustfmt defaults
 
 ### Fixed
-- `briefcase backup` now persists `source.last_backup` after each successful manual backup
+- `briefcase backup` now persists `source.<name>.last_backup` after each successful manual backup
 - Scheduled backups now update in-memory and persisted `last_backup` state consistently
 - Successful sync operations now persist `source.last_sync`, while `--dry-run` syncs leave timestamps unchanged
 - Retention now applies `general.max_retention` independently to each backup source instead of trimming all `.7z` files as one shared pool
+- Scheduled backups now run only the due source, and each source tracks its own `last_backup` timestamp in config
 
 
 ## [1.1.0] - 2026-02-23

@@ -60,6 +60,7 @@ mod tests {
             .unwrap();
 
         let updated = config::load_config(&config_path).unwrap();
-        assert!(updated.source.last_backup.is_some());
+        assert!(updated.source.folder.last_backup.is_some());
+        assert!(updated.source.firefox.last_backup.is_none());
     }
 }

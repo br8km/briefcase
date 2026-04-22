@@ -142,13 +142,14 @@ mod tests {
         let mut config = Config::default();
         let expected_backup = Local::now();
         let expected_sync = expected_backup + chrono::Duration::minutes(5);
-        config.source.last_backup = Some(expected_backup);
+        config.source.firefox.last_backup = Some(expected_backup);
+        config.source.folder.last_backup = Some(expected_backup);
         config.source.last_sync = Some(expected_sync);
 
         save_config(&config, &config_path).unwrap();
 
         let content = std::fs::read_to_string(&config_path).unwrap();
-        assert!(content.contains("last_backup = \""));
+        assert_eq!(content.matches("last_backup = \"").count(), 2);
         assert!(content.contains("last_sync = \""));
         assert!(!content.contains('T'));
 
@@ -156,6 +157,17 @@ mod tests {
         assert_eq!(
             loaded
                 .source
+                .firefox
+                .last_backup
+                .unwrap()
+                .format("%Y-%m-%d %H:%M:%S")
+                .to_string(),
+            expected_backup.format("%Y-%m-%d %H:%M:%S").to_string()
+        );
+        assert_eq!(
+            loaded
+                .source
+                .folder
                 .last_backup
                 .unwrap()
                 .format("%Y-%m-%d %H:%M:%S")
@@ -171,5 +183,55 @@ mod tests {
                 .to_string(),
             expected_sync.format("%Y-%m-%d %H:%M:%S").to_string()
         );
+    }
+
+    #[test]
+    fn test_load_legacy_shared_last_backup() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let config_path = temp_dir.path().join("config.toml");
+
+        std::fs::write(
+            &config_path,
+            r#"
+[general]
+password_hint = "hint"
+password_hash = ""
+encryption_key = ""
+max_retention = 10
+
+[source]
+last_backup = "2026-04-22 14:37:05"
+
+[source.firefox]
+enabled = false
+dir = "/tmp/firefox"
+frequency = "Daily"
+
+[source.folder]
+enabled = false
+dir = "/tmp/folder"
+frequency = "Daily"
+
+[remote]
+
+[remote.remotes.dropbox]
+name = "dropbox"
+enabled = false
+"#,
+        )
+        .unwrap();
+
+        let loaded = load_config(&config_path).unwrap();
+        assert_eq!(
+            loaded
+                .source
+                .last_backup
+                .unwrap()
+                .format("%Y-%m-%d %H:%M:%S")
+                .to_string(),
+            "2026-04-22 14:37:05"
+        );
+        assert!(loaded.source.firefox.last_backup.is_none());
+        assert!(loaded.source.folder.last_backup.is_none());
     }
 }
