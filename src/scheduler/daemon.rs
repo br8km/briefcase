@@ -139,16 +139,21 @@ impl Daemon {
                 "Starting automated sync of {} backup files",
                 backup_files.len()
             );
-            service
+            let synced_remotes = service
                 .sync_backups(backup_files, &self.data_dir, false)
                 .await?;
             let persisted_config = {
                 let mut config = self.config.lock().await;
-                config.source.last_sync = Some(Local::now());
+                let sync_time = Local::now();
+                for remote_key in synced_remotes {
+                    if let Some(remote) = config.remote.remotes.get_mut(&remote_key) {
+                        remote.last_sync = Some(sync_time);
+                    }
+                }
                 config.clone()
             };
             if let Err(e) = crate::config::save_current_config(&persisted_config) {
-                error!("Failed to persist last_sync time: {}", e);
+                error!("Failed to persist remote last_sync times: {}", e);
             }
             info!("Automated sync completed");
         }

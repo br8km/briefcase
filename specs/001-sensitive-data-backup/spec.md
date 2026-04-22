@@ -52,8 +52,8 @@ As a user with local backups, I want to sync my encrypted backup files to remote
 **Acceptance Scenarios**:
 
 1. **Given** local backups exist and valid remote config (Dropbox/OneDrive/iCloud/SFTP), **When** user runs sync command, **Then** zip files are uploaded to remote storage.
-2. **Given** sync completes successfully without `--dry-run`, **When** the command exits, **Then** `source.last_sync` is persisted to the config file using a concise local timestamp string.
-3. **Given** dry-run option enabled, **When** user runs sync, **Then** sync operations are simulated without actual upload and `source.last_sync` is not updated.
+2. **Given** sync completes successfully without `--dry-run`, **When** the command exits, **Then** each remote that synced successfully persists its own `last_sync` value to the config file using a concise local timestamp string.
+3. **Given** dry-run option enabled, **When** user runs sync, **Then** sync operations are simulated without actual upload and `remote.<name>.last_sync` is not updated.
 4. **Given** remote config invalid or credentials missing, **When** user runs sync, **Then** warning message displayed and sync skipped.
 
 ---
@@ -125,7 +125,7 @@ As a user managing my backups, I want detailed logging, cleanup capabilities, an
 - **FR-010**: System MUST sync zipped data to remote SFTP servers.
 - **FR-011**: System MUST support dry-run mode for sync operations.
 - **FR-011a**: System MUST sync data folder efficiently using rclone folder sync (single operation per remote) with automatic incremental transfer of only new/modified files.
-- **FR-011b**: System MUST persist `source.last_sync` after each successful non-dry-run sync using a concise local timestamp string.
+- **FR-011b**: System MUST persist `remote.<remote>.last_sync` after each successful non-dry-run sync using a concise local timestamp string.
 - **FR-012**: System MUST provide detailed logging with configurable levels, storing in JSON format.
 - **FR-013**: System MUST rotate logs based on monthly time and 10MB size limits, keeping maximum 3 files, with filenames formatted as `<%Y-%m>.log`.
 - **FR-014**: System MUST delete temporary files after successful sync operations.

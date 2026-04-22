@@ -70,12 +70,17 @@ pub async fn run(args: SyncArgs) -> Result<()> {
 
     let backup_files = find_backup_files(&data_dir)?;
 
-    service
+    let synced_remotes = service
         .sync_backups(&backup_files, &data_dir, args.dry_run)
         .await?;
 
     if !args.dry_run {
-        config.source.last_sync = Some(Local::now());
+        let sync_time = Local::now();
+        for remote_key in synced_remotes {
+            if let Some(remote) = config.remote.remotes.get_mut(&remote_key) {
+                remote.last_sync = Some(sync_time);
+            }
+        }
         config::save_config(&config, &config_path)?;
     }
 

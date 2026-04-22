@@ -29,7 +29,7 @@ If needed, releases can be created manually:
 
 1. **Update Version**: Update version in `Cargo.toml`
 2. **Update Changelog**: Add new version entry to `CHANGELOG.md`
-3. **Verify Timestamp Metadata**: Confirm successful `backup` updates the matching `source.<name>.last_backup` value and successful non-dry-run `sync` updates `source.last_sync`
+3. **Verify Timestamp Metadata**: Confirm successful `backup` updates the matching `source.<name>.last_backup` value and successful non-dry-run `sync` updates `remote.<name>.last_sync`
 4. **Create Tag**: `git tag v1.x.x`
 5. **Push Tag**: `git push origin v1.x.x`
 6. **GitHub Release**: Create release on GitHub with artifacts
@@ -43,7 +43,7 @@ If needed, releases can be created manually:
 - [ ] Version bumped appropriately
 - [ ] Breaking changes documented
 - [ ] CI pipeline passes
-- [ ] Config metadata timestamps verified (`source.<name>.last_backup`, `last_sync`)
+- [ ] Config metadata timestamps verified (`source.<name>.last_backup`, `remote.<name>.last_sync`)
 
 ### Versioning
 

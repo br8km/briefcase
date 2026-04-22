@@ -16,8 +16,7 @@ Represents the application configuration loaded from TOML file.
 - general: GeneralConfig (password_hint, password_hash, encryption_key, max_retention)
 - firefox_source: FirefoxSource (enabled, dir, frequency, last_backup)
 - folder_source: FolderSource (enabled, dir, frequency, last_backup)
-- remote_configs: Vec<RemoteConfig> (dropbox, onedrive, icloud, sftp)
-- last_sync: Option<DateTime<Local>> (timestamp of last successful non-dry-run sync, persisted as a concise local string in TOML)
+- remote_configs: Vec<RemoteConfig> (dropbox, onedrive, icloud, sftp, each with last_sync)
 
 **Relationships**:
 - Contains multiple RemoteConfig instances
@@ -99,6 +98,7 @@ Represents configuration for remote storage provider.
 **Fields**:
 - provider: ProviderType (Dropbox, OneDrive, iCloud, SFTP)
 - enabled: bool
+- last_sync: Option<DateTime<Local>> (timestamp of the last successful non-dry-run sync for that remote)
 - credentials: ProviderCredentials (varies by provider)
 - frequency: Option<Frequency> (sync frequency if different from source)
 
@@ -120,7 +120,7 @@ Represents configuration for remote storage provider.
 - Retention policy enforced per source type by deleting the oldest files beyond max_retention for that source
 - Remote sync only occurs after successful local backup
 - Each source `last_backup` updates only after that source completes successfully
-- `last_sync` updates only after successful non-dry-run sync completion
+- Each remote `last_sync` updates only after that remote completes a successful non-dry-run sync
 - Firefox backup handles locked profile files gracefully
 - All operations logged with structured data
 - Encryption uses unique keys per backup session

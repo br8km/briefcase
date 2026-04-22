@@ -98,7 +98,7 @@ briefcase sync
 briefcase sync --dry-run
 ```
 
-Successful non-dry-run `briefcase sync` runs update `source.last_sync` in the config file automatically.
+Successful non-dry-run `briefcase sync` runs update `remote.<name>.last_sync` for each remote that actually syncs successfully.
 
 ### Schedule Commands
 
@@ -208,7 +208,6 @@ text_editor = "vi"  # Editor for 'config edit' (default: vi on Linux/Mac, notepa
 # max_retention applies per source type in the shared data directory
 
 [source]
-last_sync = "2026-04-22 14:42:18"   # Auto-managed after successful syncs
 
 [source.firefox]
 enabled = true
@@ -225,10 +224,12 @@ last_backup = "2026-04-20 09:15:00" # Auto-managed after successful Folder backu
 [remote.dropbox]
 name = "dropbox"
 enabled = true
+last_sync = "2026-04-22 14:42:18"   # Auto-managed after successful Dropbox syncs
 
 [remote.onedrive]
 name = "onedrive"
 enabled = false
+last_sync = "2026-04-21 08:30:00"
 
 [remote.iclouddrive]
 name = "iclouddrive"
@@ -304,6 +305,7 @@ frequency = "weekly"
 - `onedrive`: Microsoft OneDrive (credentials managed by rclone config)
 - `iclouddrive`: Apple iCloud (credentials managed by rclone config)
 - `sftp`: SFTP/SCP server (credentials managed by rclone config)
+- `last_sync`: Last successful sync time for that remote
 
 **Note**: Remote provider credentials are stored in rclone's configuration file, not in briefcase.toml. Use `rclone config` to set up cloud provider credentials.
 

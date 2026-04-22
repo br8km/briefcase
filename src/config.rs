@@ -144,13 +144,13 @@ mod tests {
         let expected_sync = expected_backup + chrono::Duration::minutes(5);
         config.source.firefox.last_backup = Some(expected_backup);
         config.source.folder.last_backup = Some(expected_backup);
-        config.source.last_sync = Some(expected_sync);
+        config.remote.remotes.get_mut("dropbox").unwrap().last_sync = Some(expected_sync);
 
         save_config(&config, &config_path).unwrap();
 
         let content = std::fs::read_to_string(&config_path).unwrap();
         assert_eq!(content.matches("last_backup = \"").count(), 2);
-        assert!(content.contains("last_sync = \""));
+        assert_eq!(content.matches("last_sync = \"").count(), 1);
         assert!(!content.contains('T'));
 
         let loaded = load_config(&config_path).unwrap();
@@ -176,7 +176,10 @@ mod tests {
         );
         assert_eq!(
             loaded
-                .source
+                .remote
+                .remotes
+                .get("dropbox")
+                .unwrap()
                 .last_sync
                 .unwrap()
                 .format("%Y-%m-%d %H:%M:%S")
@@ -233,5 +236,60 @@ enabled = false
         );
         assert!(loaded.source.firefox.last_backup.is_none());
         assert!(loaded.source.folder.last_backup.is_none());
+    }
+
+    #[test]
+    fn test_load_legacy_shared_last_sync() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let config_path = temp_dir.path().join("config.toml");
+
+        std::fs::write(
+            &config_path,
+            r#"
+[general]
+password_hint = "hint"
+password_hash = ""
+encryption_key = ""
+max_retention = 10
+
+[source]
+last_sync = "2026-04-22 14:42:18"
+
+[source.firefox]
+enabled = false
+dir = "/tmp/firefox"
+frequency = "Daily"
+
+[source.folder]
+enabled = false
+dir = "/tmp/folder"
+frequency = "Daily"
+
+[remote]
+
+[remote.remotes.dropbox]
+name = "dropbox"
+enabled = false
+"#,
+        )
+        .unwrap();
+
+        let loaded = load_config(&config_path).unwrap();
+        assert_eq!(
+            loaded
+                .source
+                .last_sync
+                .unwrap()
+                .format("%Y-%m-%d %H:%M:%S")
+                .to_string(),
+            "2026-04-22 14:42:18"
+        );
+        assert!(loaded
+            .remote
+            .remotes
+            .get("dropbox")
+            .unwrap()
+            .last_sync
+            .is_none());
     }
 }

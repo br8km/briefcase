@@ -13,6 +13,7 @@ mod tests {
             RemoteProvider {
                 name: "dropbox".to_string(),
                 enabled: true,
+                last_sync: None,
             },
         );
         assert!(validate_config(&config).is_ok());
@@ -26,6 +27,7 @@ mod tests {
             RemoteProvider {
                 name: "onedrive".to_string(),
                 enabled: true,
+                last_sync: None,
             },
         );
         assert!(validate_config(&config).is_ok());
@@ -39,6 +41,7 @@ mod tests {
             RemoteProvider {
                 name: "iclouddrive".to_string(),
                 enabled: true,
+                last_sync: None,
             },
         );
         assert!(validate_config(&config).is_ok());
@@ -52,6 +55,7 @@ mod tests {
             RemoteProvider {
                 name: "sftp".to_string(),
                 enabled: true,
+                last_sync: None,
             },
         );
         assert!(validate_config(&config).is_ok());
@@ -65,6 +69,7 @@ mod tests {
             RemoteProvider {
                 name: "".to_string(),
                 enabled: true,
+                last_sync: None,
             },
         );
         assert!(validate_config(&config).is_err());
@@ -78,6 +83,7 @@ mod tests {
             RemoteProvider {
                 name: "dropbox".to_string(),
                 enabled: true,
+                last_sync: None,
             },
         );
         config.remote.remotes.insert(
@@ -85,6 +91,7 @@ mod tests {
             RemoteProvider {
                 name: "onedrive".to_string(),
                 enabled: true,
+                last_sync: None,
             },
         );
         assert!(validate_config(&config).is_ok());

@@ -32,7 +32,7 @@ pub struct SourceConfig {
     pub last_backup: Option<DateTime<Local>>,
     #[serde(
         default,
-        serialize_with = "serialize_optional_local_datetime",
+        skip_serializing,
         deserialize_with = "deserialize_optional_local_datetime"
     )]
     pub last_sync: Option<DateTime<Local>>,
@@ -82,6 +82,12 @@ pub struct RemoteConfig {
 pub struct RemoteProvider {
     pub name: String,
     pub enabled: bool,
+    #[serde(
+        default,
+        serialize_with = "serialize_optional_local_datetime",
+        deserialize_with = "deserialize_optional_local_datetime"
+    )]
+    pub last_sync: Option<DateTime<Local>>,
 }
 
 impl Default for Config {
@@ -118,6 +124,7 @@ impl Default for Config {
                         RemoteProvider {
                             name: "dropbox".to_string(),
                             enabled: false,
+                            last_sync: None,
                         },
                     );
                     remotes.insert(
@@ -125,6 +132,7 @@ impl Default for Config {
                         RemoteProvider {
                             name: "onedrive".to_string(),
                             enabled: false,
+                            last_sync: None,
                         },
                     );
                     remotes.insert(
@@ -132,6 +140,7 @@ impl Default for Config {
                         RemoteProvider {
                             name: "iclouddrive".to_string(),
                             enabled: false,
+                            last_sync: None,
                         },
                     );
                     remotes.insert(
@@ -139,6 +148,7 @@ impl Default for Config {
                         RemoteProvider {
                             name: "sftp".to_string(),
                             enabled: false,
+                            last_sync: None,
                         },
                     );
                     remotes

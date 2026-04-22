@@ -19,16 +19,22 @@ impl SyncService {
         _backup_files: &[BackupFile],
         data_dir: &Path,
         dry_run: bool,
-    ) -> Result<()> {
-        for remote_provider in self.config.remote.remotes.values() {
+    ) -> Result<Vec<String>> {
+        let mut synced_remotes = Vec::new();
+
+        for (remote_key, remote_provider) in &self.config.remote.remotes {
             if remote_provider.enabled {
                 let remote_path = format!("{}:", remote_provider.name);
-                self.sync_folder_to_provider(data_dir, &remote_path, dry_run)
-                    .await?;
+                if self
+                    .sync_folder_to_provider(data_dir, &remote_path, dry_run)
+                    .await?
+                {
+                    synced_remotes.push(remote_key.clone());
+                }
             }
         }
 
-        Ok(())
+        Ok(synced_remotes)
     }
 
     async fn sync_folder_to_provider(
@@ -36,7 +42,7 @@ impl SyncService {
         data_dir: &Path,
         remote_base: &str,
         dry_run: bool,
-    ) -> Result<()> {
+    ) -> Result<bool> {
         let briefcase_dir = if remote_base.starts_with("sftp:") {
             format!("{}/upload/briefcase", remote_base.trim_end_matches('/'))
         } else {
@@ -62,11 +68,14 @@ impl SyncService {
         info!("Syncing folder {} to {}", data_dir.display(), briefcase_dir);
 
         match rclone::sync_folder_to_remote(data_dir, &briefcase_dir, dry_run).await {
-            Ok(_) => info!("Successfully synced folder {}", data_dir.display()),
+            Ok(_) => {
+                info!("Successfully synced folder {}", data_dir.display());
+                return Ok(!dry_run);
+            }
             Err(e) => error!("Failed to sync folder {}: {}", data_dir.display(), e),
         }
 
-        Ok(())
+        Ok(false)
     }
 
     pub async fn validate_remotes(&self) -> Result<()> {

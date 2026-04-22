@@ -61,13 +61,13 @@ cargo build --release
 ```bash
 ./target/release/briefcase sync
 # Syncs recent backups to enabled remote providers
-# Successful non-dry-run runs update source.last_sync in briefcase.toml
+# Successful non-dry-run runs update remote.<name>.last_sync in briefcase.toml
 ```
 
 ### Preview Sync (Dry Run)
 ```bash
 ./target/release/briefcase sync --dry-run
-# Shows what would be synced without updating source.last_sync
+# Shows what would be synced without updating remote.<name>.last_sync
 ```
 
 ### Decrypt and Restore
@@ -108,7 +108,6 @@ text_editor = "vi"  # or "notepad" on Windows
 # keeps up to 10 Firefox archives and 10 Folder archives independently
 
 [source]
-last_sync = "2026-04-22 14:42:18"
 
 [source.firefox]
 enabled = true
@@ -125,6 +124,7 @@ last_backup = "2026-04-22 11:00:00"
 [remote.dropbox]
 name = "dropbox"
 enabled = true
+last_sync = "2026-04-22 14:42:18"
 ```
 
 ## Testing
