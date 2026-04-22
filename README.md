@@ -52,6 +52,8 @@ sudo cp target/release/briefcase /usr/local/bin/
 
 ### First Time Setup
 
+Prefer to start from the repository example at `config.example.toml` if you want a ready-made template before initializing your local config.
+
 1. **Initialize Configuration**
 ```bash
 briefcase config init --password "your-strong-password" --password-hint "hint"
@@ -196,6 +198,22 @@ briefcase crypto decrypt --input backup.7z --output ./recovered/
 ## ⚙️ Configuration
 
 Briefcase uses TOML configuration files. The default location is `~/.config/briefcase/briefcase.toml`.
+
+### Start from the example file
+
+Use the root example file as a template, then generate the real secrets with `config init`:
+
+```bash
+# Copy the example into the default local config location
+mkdir -p ~/.config/briefcase
+cp config.example.toml ~/.config/briefcase/briefcase.toml
+
+# Edit paths, enabled sources, and remotes
+briefcase config edit
+
+# Generate password_hash and encryption_key for the real local config
+briefcase config init --password "your-strong-password" --password-hint "hint"
+```
 
 ### Example Configuration
 
