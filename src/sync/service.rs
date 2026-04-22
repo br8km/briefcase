@@ -22,7 +22,7 @@ impl SyncService {
     ) -> Result<Vec<String>> {
         let mut synced_remotes = Vec::new();
 
-        for (remote_key, remote_provider) in &self.config.remote.remotes {
+        for (remote_key, remote_provider) in &self.config.remote.providers {
             if remote_provider.enabled {
                 let remote_path = format!("{}:", remote_provider.name);
                 if self
@@ -79,7 +79,7 @@ impl SyncService {
     }
 
     pub async fn validate_remotes(&self) -> Result<()> {
-        for remote_provider in self.config.remote.remotes.values() {
+        for remote_provider in self.config.remote.providers.values() {
             if remote_provider.enabled {
                 let remote_path = format!("{}:", remote_provider.name);
                 if !rclone::test_remote_connection(&remote_path).await? {

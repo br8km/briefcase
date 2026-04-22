@@ -99,7 +99,11 @@ impl Daemon {
         let mut encryption_key = [0u8; 32];
         encryption_key.copy_from_slice(&encryption_key_bytes);
 
-        let has_remotes = config.remote.remotes.values().any(|remote| remote.enabled);
+        let has_remotes = config
+            .remote
+            .providers
+            .values()
+            .any(|remote| remote.enabled);
         drop(config);
 
         let backup_files = self
@@ -146,7 +150,7 @@ impl Daemon {
                 let mut config = self.config.lock().await;
                 let sync_time = Local::now();
                 for remote_key in synced_remotes {
-                    if let Some(remote) = config.remote.remotes.get_mut(&remote_key) {
+                    if let Some(remote) = config.remote.providers.get_mut(&remote_key) {
                         remote.last_sync = Some(sync_time);
                     }
                 }

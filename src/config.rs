@@ -55,7 +55,7 @@ pub fn validate_config(config: &Config) -> Result<()> {
     }
 
     // Validate remotes - no API credentials needed as they're stored in rclone config
-    for (remote_key, remote_provider) in &config.remote.remotes {
+    for (remote_key, remote_provider) in &config.remote.providers {
         if remote_provider.enabled && remote_provider.name.is_empty() {
             return Err(anyhow!("Remote {} name cannot be empty", remote_key));
         }
@@ -144,7 +144,12 @@ mod tests {
         let expected_sync = expected_backup + chrono::Duration::minutes(5);
         config.source.firefox.last_backup = Some(expected_backup);
         config.source.folder.last_backup = Some(expected_backup);
-        config.remote.remotes.get_mut("dropbox").unwrap().last_sync = Some(expected_sync);
+        config
+            .remote
+            .providers
+            .get_mut("dropbox")
+            .unwrap()
+            .last_sync = Some(expected_sync);
 
         save_config(&config, &config_path).unwrap();
 
@@ -152,6 +157,8 @@ mod tests {
         assert_eq!(content.matches("last_backup = \"").count(), 2);
         assert_eq!(content.matches("last_sync = \"").count(), 1);
         assert!(!content.contains('T'));
+        assert!(content.contains("[remote.dropbox]"));
+        assert!(!content.contains("[remote.remotes.dropbox]"));
 
         let loaded = load_config(&config_path).unwrap();
         assert_eq!(
@@ -177,7 +184,7 @@ mod tests {
         assert_eq!(
             loaded
                 .remote
-                .remotes
+                .providers
                 .get("dropbox")
                 .unwrap()
                 .last_sync
@@ -217,7 +224,7 @@ frequency = "Daily"
 
 [remote]
 
-[remote.remotes.dropbox]
+[remote.dropbox]
 name = "dropbox"
 enabled = false
 "#,
@@ -239,7 +246,7 @@ enabled = false
     }
 
     #[test]
-    fn test_load_legacy_shared_last_sync() {
+    fn test_load_invalid_remote_config_is_invalid() {
         let temp_dir = tempfile::tempdir().unwrap();
         let config_path = temp_dir.path().join("config.toml");
 
@@ -266,30 +273,57 @@ dir = "/tmp/folder"
 frequency = "Daily"
 
 [remote]
+remotes = "dropbox"
+"#,
+        )
+        .unwrap();
 
-[remote.remotes.dropbox]
-name = "dropbox"
+        assert!(load_config(&config_path).is_err());
+    }
+
+    #[test]
+    fn test_load_flattened_remote_config() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let config_path = temp_dir.path().join("config.toml");
+
+        std::fs::write(
+            &config_path,
+            r#"
+[general]
+password_hint = "hint"
+password_hash = ""
+encryption_key = ""
+max_retention = 10
+
+[source.firefox]
 enabled = false
+dir = "/tmp/firefox"
+frequency = "Daily"
+
+[source.folder]
+enabled = false
+dir = "/tmp/folder"
+frequency = "Daily"
+
+[remote.dropbox]
+name = "dropbox"
+enabled = true
+last_sync = "2026-04-22 14:42:18"
 "#,
         )
         .unwrap();
 
         let loaded = load_config(&config_path).unwrap();
+        let dropbox = loaded.remote.providers.get("dropbox").unwrap();
+
+        assert!(dropbox.enabled);
         assert_eq!(
-            loaded
-                .source
+            dropbox
                 .last_sync
                 .unwrap()
                 .format("%Y-%m-%d %H:%M:%S")
                 .to_string(),
             "2026-04-22 14:42:18"
         );
-        assert!(loaded
-            .remote
-            .remotes
-            .get("dropbox")
-            .unwrap()
-            .last_sync
-            .is_none());
     }
 }

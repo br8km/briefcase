@@ -15,11 +15,11 @@ mod tests {
         assert!(!config.source.firefox.enabled);
         assert!(!config.source.folder.enabled);
         // Check that default remotes are configured but disabled
-        assert_eq!(config.remote.remotes.len(), 4);
-        assert!(!config.remote.remotes.get("dropbox").unwrap().enabled);
-        assert!(!config.remote.remotes.get("onedrive").unwrap().enabled);
-        assert!(!config.remote.remotes.get("iclouddrive").unwrap().enabled);
-        assert!(!config.remote.remotes.get("sftp").unwrap().enabled);
+        assert_eq!(config.remote.providers.len(), 4);
+        assert!(!config.remote.providers.get("dropbox").unwrap().enabled);
+        assert!(!config.remote.providers.get("onedrive").unwrap().enabled);
+        assert!(!config.remote.providers.get("iclouddrive").unwrap().enabled);
+        assert!(!config.remote.providers.get("sftp").unwrap().enabled);
     }
 
     #[test]
@@ -62,7 +62,7 @@ mod tests {
     #[test]
     fn test_validate_remote_with_empty_name() {
         let mut config = Config::default();
-        config.remote.remotes.insert(
+        config.remote.providers.insert(
             "test".to_string(),
             RemoteProvider {
                 name: "".to_string(),
@@ -76,7 +76,7 @@ mod tests {
     #[test]
     fn test_validate_multiple_enabled_remotes() {
         let mut config = Config::default();
-        config.remote.remotes.insert(
+        config.remote.providers.insert(
             "dropbox".to_string(),
             RemoteProvider {
                 name: "dropbox".to_string(),
@@ -84,7 +84,7 @@ mod tests {
                 last_sync: None,
             },
         );
-        config.remote.remotes.insert(
+        config.remote.providers.insert(
             "onedrive".to_string(),
             RemoteProvider {
                 name: "onedrive".to_string(),

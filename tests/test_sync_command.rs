@@ -57,8 +57,13 @@ mod tests {
         configure_test_env(temp_dir.path());
 
         let mut config = Config::default();
-        config.remote.remotes.get_mut("dropbox").unwrap().enabled = false;
-        config.remote.remotes.get_mut("dropbox").unwrap().last_sync = None;
+        config.remote.providers.get_mut("dropbox").unwrap().enabled = false;
+        config
+            .remote
+            .providers
+            .get_mut("dropbox")
+            .unwrap()
+            .last_sync = None;
 
         let config_path = config::get_config_path().unwrap();
         config::save_config(&config, &config_path).unwrap();
@@ -82,7 +87,7 @@ mod tests {
         let updated = config::load_config(&config_path).unwrap();
         assert!(updated
             .remote
-            .remotes
+            .providers
             .get("dropbox")
             .unwrap()
             .last_sync
@@ -97,8 +102,13 @@ mod tests {
         let old_path = configure_mock_rclone(temp_dir.path());
 
         let mut config = Config::default();
-        config.remote.remotes.get_mut("dropbox").unwrap().enabled = true;
-        config.remote.remotes.get_mut("dropbox").unwrap().last_sync = None;
+        config.remote.providers.get_mut("dropbox").unwrap().enabled = true;
+        config
+            .remote
+            .providers
+            .get_mut("dropbox")
+            .unwrap()
+            .last_sync = None;
 
         let config_path = config::get_config_path().unwrap();
         config::save_config(&config, &config_path).unwrap();
@@ -123,7 +133,7 @@ mod tests {
         let updated = config::load_config(&config_path).unwrap();
         assert!(updated
             .remote
-            .remotes
+            .providers
             .get("dropbox")
             .unwrap()
             .last_sync

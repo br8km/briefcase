@@ -1,5 +1,6 @@
 use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::collections::HashMap;
 use std::path::PathBuf;
 
 const LAST_BACKUP_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
@@ -71,11 +72,10 @@ pub enum Frequency {
     Weekly,
 }
 
-use std::collections::HashMap;
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RemoteConfig {
-    pub remotes: HashMap<String, RemoteProvider>,
+    #[serde(flatten)]
+    pub providers: HashMap<String, RemoteProvider>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -117,9 +117,9 @@ impl Default for Config {
                 last_sync: None,
             },
             remote: RemoteConfig {
-                remotes: {
-                    let mut remotes = HashMap::new();
-                    remotes.insert(
+                providers: {
+                    let mut providers = HashMap::new();
+                    providers.insert(
                         "dropbox".to_string(),
                         RemoteProvider {
                             name: "dropbox".to_string(),
@@ -127,7 +127,7 @@ impl Default for Config {
                             last_sync: None,
                         },
                     );
-                    remotes.insert(
+                    providers.insert(
                         "onedrive".to_string(),
                         RemoteProvider {
                             name: "onedrive".to_string(),
@@ -135,7 +135,7 @@ impl Default for Config {
                             last_sync: None,
                         },
                     );
-                    remotes.insert(
+                    providers.insert(
                         "iclouddrive".to_string(),
                         RemoteProvider {
                             name: "iclouddrive".to_string(),
@@ -143,7 +143,7 @@ impl Default for Config {
                             last_sync: None,
                         },
                     );
-                    remotes.insert(
+                    providers.insert(
                         "sftp".to_string(),
                         RemoteProvider {
                             name: "sftp".to_string(),
@@ -151,7 +151,7 @@ impl Default for Config {
                             last_sync: None,
                         },
                     );
-                    remotes
+                    providers
                 },
             },
         }

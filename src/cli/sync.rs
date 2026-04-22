@@ -77,7 +77,7 @@ pub async fn run(args: SyncArgs) -> Result<()> {
     if !args.dry_run {
         let sync_time = Local::now();
         for remote_key in synced_remotes {
-            if let Some(remote) = config.remote.remotes.get_mut(&remote_key) {
+            if let Some(remote) = config.remote.providers.get_mut(&remote_key) {
                 remote.last_sync = Some(sync_time);
             }
         }

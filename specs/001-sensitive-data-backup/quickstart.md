@@ -127,6 +127,8 @@ enabled = true
 last_sync = "2026-04-22 14:42:18"
 ```
 
+Remote providers must be declared as `[remote.<name>]`. The deprecated `[remote.remotes.<name>]` layout is not supported.
+
 ## Testing
 
 ```bash

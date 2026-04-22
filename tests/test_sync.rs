@@ -25,7 +25,7 @@ mod tests {
     async fn test_actual_sync_with_configured_rclone() {
         let mut config = Config::default();
         // Assume first remote is configured, e.g., dropbox
-        if let Some(remote) = config.remote.remotes.values_mut().next() {
+        if let Some(remote) = config.remote.providers.values_mut().next() {
             remote.enabled = true;
         }
 

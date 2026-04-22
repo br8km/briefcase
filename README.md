@@ -199,6 +199,8 @@ Briefcase uses TOML configuration files. The default location is `~/.config/brie
 
 ### Example Configuration
 
+Remote providers must use flattened tables in the form `[remote.<name>]`. The deprecated `[remote.remotes.<name>]` format is invalid and `briefcase config validate` rejects it.
+
 ```toml
 [general]
 max_retention = 10
@@ -306,6 +308,7 @@ frequency = "weekly"
 - `iclouddrive`: Apple iCloud (credentials managed by rclone config)
 - `sftp`: SFTP/SCP server (credentials managed by rclone config)
 - `last_sync`: Last successful sync time for that remote
+- Remote table format: `[remote.<name>]` only
 
 **Note**: Remote provider credentials are stored in rclone's configuration file, not in briefcase.toml. Use `rclone config` to set up cloud provider credentials.
 
