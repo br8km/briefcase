@@ -1,4 +1,5 @@
 use chrono::{DateTime, Local};
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -11,9 +12,20 @@ pub struct TempDir {
 
 impl TempDir {
     pub fn new(size_limit: u64) -> std::io::Result<Self> {
-        let temp_path =
-            std::env::temp_dir().join(format!("briefcase_{}", Local::now().timestamp()));
-        std::fs::create_dir_all(&temp_path)?;
+        let mut rng = rand::thread_rng();
+        let temp_path = loop {
+            let candidate = std::env::temp_dir().join(format!(
+                "briefcase_{}_{}",
+                Local::now().timestamp_nanos_opt().unwrap_or_default(),
+                rng.gen::<u64>()
+            ));
+
+            match std::fs::create_dir(&candidate) {
+                Ok(()) => break candidate,
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+                Err(error) => return Err(error),
+            }
+        };
 
         Ok(Self {
             path: temp_path,

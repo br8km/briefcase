@@ -1,5 +1,6 @@
 use briefcase::backup::service::BackupService;
 use briefcase::models::config::Config;
+use rusqlite::Connection;
 use std::sync::Arc;
 use tempfile::tempdir;
 use tokio::sync::Mutex;
@@ -7,6 +8,34 @@ use tokio::sync::Mutex;
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn create_places_db(path: &std::path::Path) {
+        let connection = Connection::open(path).unwrap();
+        connection
+            .execute_batch(
+                "CREATE TABLE moz_places (
+                    id INTEGER PRIMARY KEY,
+                    url TEXT
+                );
+                CREATE TABLE moz_bookmarks (
+                    id INTEGER PRIMARY KEY,
+                    parent INTEGER,
+                    position INTEGER,
+                    title TEXT,
+                    type INTEGER,
+                    fk INTEGER
+                );
+                INSERT INTO moz_bookmarks (id, parent, position, title, type, fk)
+                VALUES (1, 0, 0, 'root', 2, NULL);
+                INSERT INTO moz_bookmarks (id, parent, position, title, type, fk)
+                VALUES (2, 1, 0, 'menu', 2, NULL);
+                INSERT INTO moz_places (id, url)
+                VALUES (1, 'https://example.com');
+                INSERT INTO moz_bookmarks (id, parent, position, title, type, fk)
+                VALUES (3, 2, 0, 'Example', 1, 1);",
+            )
+            .unwrap();
+    }
 
     #[tokio::test]
     async fn test_backup_workflow_firefox() {
@@ -21,7 +50,7 @@ mod tests {
 
         // Create mock Firefox data
         let places_sqlite = config.source.firefox.dir.join("places.sqlite");
-        std::fs::write(&places_sqlite, "mock firefox data").unwrap();
+        create_places_db(&places_sqlite);
 
         let service = BackupService::new(Arc::new(Mutex::new(config)), backup_dir.clone());
         let result = service.perform_backup("testpassword").await;
@@ -79,11 +108,7 @@ mod tests {
         config.source.firefox.enabled = true;
         config.source.firefox.dir = temp_dir.path().join("firefox_profile");
         std::fs::create_dir(&config.source.firefox.dir).unwrap();
-        std::fs::write(
-            config.source.firefox.dir.join("places.sqlite"),
-            "mock firefox data",
-        )
-        .unwrap();
+        create_places_db(&config.source.firefox.dir.join("places.sqlite"));
 
         config.source.folder.enabled = true;
         config.source.folder.dir = temp_dir.path().join("sensitive_data");
