@@ -46,7 +46,7 @@ sudo mv briefcase /usr/local/bin/
 git clone https://github.com/br8km/briefcase.git
 cd briefcase
 cargo build --release
-sudo cp target/release/briefcase /usr/local/bin/
+./target/release/briefcase install
 ```
 
 ### First Time Setup
@@ -68,6 +68,12 @@ briefcase backup
 
 # Preview what would be backed up
 briefcase backup --dry-run
+```
+
+Check the installed version at any time:
+
+```bash
+briefcase version
 ```
 
 ## 📚 Documentation
