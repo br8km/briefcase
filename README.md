@@ -2,7 +2,6 @@
 
 A secure, automated backup tool for personal sensitive data with cloud synchronization capabilities.
 
-[![Build Status](https://github.com/br8km/briefcase/actions/workflows/ci.yml/badge.svg)](https://github.com/br8km/briefcase/actions/workflows/ci.yml)
 [![Release](https://github.com/br8km/briefcase/releases/latest/badge.svg)](https://github.com/br8km/briefcase/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust](https://img.shields.io/badge/rust-1.75%2B-orange)](https://www.rust-lang.org/)
@@ -52,7 +51,7 @@ sudo cp target/release/briefcase /usr/local/bin/
 
 ### First Time Setup
 
-Prefer to start from the repository example at `config.example.toml` if you want a ready-made template before initializing your local config.
+Use the example in the [configuration guide](docs/user-guide/configuration.md) if you want a ready-made template before initializing your local config.
 
 1. **Initialize Configuration**
 ```bash
@@ -73,14 +72,15 @@ briefcase backup --dry-run
 
 ## 📚 Documentation
 
-- [Usage Guide](docs/USAGE.md)
-- [Contributing Guide](docs/CONTRIBUTING.md)
-- [Changelog](docs/CHANGELOG.md)
-- [Release Process](docs/RELEASE.md)
+- [Documentation index](docs/README.md)
+- [Usage guide](docs/user-guide/commands.md)
+- [Contributing guide](docs/development/contributing.md)
+- [Changelog](docs/release/changelog.md)
+- [Release process](docs/release/process.md)
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](docs/CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guide](docs/development/contributing.md) for details.
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature-name`
@@ -90,7 +90,7 @@ We welcome contributions! Please see our [Contributing Guide](docs/CONTRIBUTING.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
