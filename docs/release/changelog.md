@@ -4,6 +4,8 @@ All notable changes to Briefcase are recorded here. Historical entries describe 
 
 ## Unreleased
 
+## [1.1.1] - 2026-07-15
+
 ### Added
 
 - Reorganized documentation into getting-started, user-guide, reference, operations, development, and release sections.
