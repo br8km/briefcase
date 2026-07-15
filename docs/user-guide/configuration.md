@@ -1,6 +1,6 @@
 # Configuration
 
-The default file is `briefcase.toml` inside the platform configuration directory under `briefcase/`. `config init` creates the directory and writes the file.
+The default file is `briefcase.toml` inside the platform configuration directory under `briefcase/`. `config init` creates the file, password hash, and encryption key.
 
 ```toml
 # Generated secrets are normally populated by `briefcase config init`.

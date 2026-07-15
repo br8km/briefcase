@@ -10,6 +10,7 @@ All notable changes to Briefcase are recorded here. Historical entries describe 
 - Added implementation traceability and decision records for the sensitive-data-backup feature.
 - Added per-remote `remote.<name>.last_sync` timestamp tracking to the config file for successful sync operations.
 - Added command-level tests covering `briefcase backup` and `briefcase sync` config persistence.
+- Added `briefcase version` and Unix/Linux-only `briefcase install` commands.
 
 ### Changed
 

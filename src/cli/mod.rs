@@ -2,6 +2,7 @@ pub mod backup;
 pub mod clean;
 pub mod config;
 pub mod crypto;
+pub mod install;
 pub mod schedule;
 pub mod sync;
 pub mod uninstall;
@@ -29,6 +30,10 @@ pub enum Commands {
     Schedule(schedule::ScheduleArgs),
     /// Crypto operations
     Crypto(crypto::CryptoArgs),
+    /// Print the current version
+    Version,
+    /// Install the binary
+    Install(install::InstallArgs),
     /// Clean data and logs
     Clean(clean::CleanArgs),
     /// Uninstall application
@@ -42,6 +47,11 @@ pub async fn run(cli: Cli) -> Result<()> {
         Commands::Sync(args) => sync::run(args).await,
         Commands::Schedule(args) => schedule::run(args).await,
         Commands::Crypto(args) => crypto::run(args).await,
+        Commands::Version => {
+            println!("briefcase {}", env!("CARGO_PKG_VERSION"));
+            Ok(())
+        }
+        Commands::Install(args) => install::run(args).await,
         Commands::Clean(args) => clean::run(args).await,
         Commands::Uninstall(args) => uninstall::run(args).await,
     }

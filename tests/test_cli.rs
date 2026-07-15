@@ -35,6 +35,20 @@ mod tests {
         assert!(matches!(cli.command, cli::Commands::Schedule(_)));
     }
 
+    #[test]
+    fn test_cli_version_command() {
+        let args = ["briefcase", "version"];
+        let cli = cli::Cli::parse_from(args);
+        assert!(matches!(cli.command, cli::Commands::Version));
+    }
+
+    #[test]
+    fn test_cli_install_command_with_custom_path() {
+        let args = ["briefcase", "install", "--path", "/tmp/briefcase-bin"];
+        let cli = cli::Cli::parse_from(args);
+        assert!(matches!(cli.command, cli::Commands::Install(_)));
+    }
+
     #[tokio::test]
     async fn test_cli_config_validate_rejects_invalid_remote_config() {
         let temp_dir = tempfile::tempdir().unwrap();

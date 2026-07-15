@@ -1,7 +1,8 @@
 use briefcase::cli::sync::SyncArgs;
 use briefcase::config;
 use briefcase::models::config::Config;
-use std::sync::{Mutex, OnceLock};
+use std::sync::OnceLock;
+use tokio::sync::Mutex;
 
 #[cfg(test)]
 mod tests {
@@ -52,7 +53,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_sync_command_does_not_update_remote_last_sync_without_successful_remote() {
-        let _guard = env_lock().lock().unwrap();
+        let _guard = env_lock().lock().await;
         let temp_dir = tempfile::tempdir().unwrap();
         configure_test_env(temp_dir.path());
 
@@ -96,7 +97,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_sync_command_updates_successful_remote_last_sync() {
-        let _guard = env_lock().lock().unwrap();
+        let _guard = env_lock().lock().await;
         let temp_dir = tempfile::tempdir().unwrap();
         configure_test_env(temp_dir.path());
         let old_path = configure_mock_rclone(temp_dir.path());

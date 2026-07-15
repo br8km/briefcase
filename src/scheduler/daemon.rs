@@ -180,11 +180,12 @@ mod tests {
     use base64::engine::general_purpose;
     use chrono::{Duration as ChronoDuration, Local};
     use rusqlite::Connection;
-    use std::sync::{Mutex as StdMutex, OnceLock};
+    use std::sync::OnceLock;
+    use tokio::sync::Mutex;
 
-    fn env_lock() -> &'static StdMutex<()> {
-        static LOCK: OnceLock<StdMutex<()>> = OnceLock::new();
-        LOCK.get_or_init(|| StdMutex::new(()))
+    fn env_lock() -> &'static Mutex<()> {
+        static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+        LOCK.get_or_init(|| Mutex::new(()))
     }
 
     fn configure_test_env(base_dir: &std::path::Path) {
@@ -222,7 +223,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_check_and_run_backups_only_runs_due_source() {
-        let _guard = env_lock().lock().unwrap();
+        let _guard = env_lock().lock().await;
         let temp_dir = tempfile::tempdir().unwrap();
         configure_test_env(temp_dir.path());
 

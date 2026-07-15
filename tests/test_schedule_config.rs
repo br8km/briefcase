@@ -1,10 +1,14 @@
-#[cfg(test)]
-mod tests {
+use briefcase::cli::{schedule::ScheduleCommands, Cli, Commands};
+use clap::Parser;
 
-    #[test]
-    fn test_schedule_args_start() {
-        // Since ScheduleArgs requires subcommand, just test that it can be created
-        // In real test, would need to parse from args
-        assert!(true);
+#[test]
+fn test_schedule_args_start() {
+    let cli = Cli::parse_from(["briefcase", "schedule", "start"]);
+
+    match cli.command {
+        Commands::Schedule(args) => {
+            assert!(matches!(args.command, ScheduleCommands::Start(_)));
+        }
+        _ => panic!("expected schedule command"),
     }
 }

@@ -131,6 +131,8 @@ The daemon checks once per hour. A source is due when it has no timestamp or whe
 | `sync` | Optional `--dry-run`. |
 | `crypto` | Actions: `validate`, `decrypt`; decryption requires `--input` and `--output`. Recovery prompts for a password when no usable config key exists. |
 | `schedule` | `start`, `stop`, `status`; start supports `--detach` and `--force`. |
+| `version` | Prints the package version. |
+| `install` | Unix/Linux only; optional `--path` destination directory; installs the binary only. |
 | `clean` | Optional `--force`; removes all data and log entries. |
 | `uninstall` | Optional `--all`; removes application data and the current binary, with optional config removal. |
 

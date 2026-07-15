@@ -1,7 +1,8 @@
 use briefcase::cli::backup::BackupArgs;
 use briefcase::config;
 use briefcase::models::config::Config;
-use std::sync::{Mutex, OnceLock};
+use std::sync::OnceLock;
+use tokio::sync::Mutex;
 
 #[cfg(test)]
 mod tests {
@@ -32,7 +33,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_backup_command_persists_last_backup() {
-        let _guard = env_lock().lock().unwrap();
+        let _guard = env_lock().lock().await;
         let temp_dir = tempfile::tempdir().unwrap();
         configure_test_env(temp_dir.path());
 

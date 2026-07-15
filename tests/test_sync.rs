@@ -6,14 +6,6 @@ use briefcase::sync::service::SyncService;
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_sync_service_creation() {
-        let config = Config::default();
-        let _service = SyncService::new(config);
-        // Just check it creates without error
-        assert!(true);
-    }
-
     #[tokio::test]
     async fn test_sync_service_validate_remotes_no_remotes() {
         let config = Config::default();

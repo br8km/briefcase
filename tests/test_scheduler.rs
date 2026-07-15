@@ -7,13 +7,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_scheduler_service_creation() {
-        let _service = SchedulerService;
-        // Just check it exists
-        assert!(true);
-    }
-
-    #[test]
     fn test_is_due_hourly() {
         let last_backup = Some(Local::now() - Duration::hours(2));
         assert!(SchedulerService::is_backup_due(
